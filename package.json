@@ -7,7 +7,7 @@
   "private": false,
   "scripts": {
     "start": "sls offline start -P 3001",
-    "test": "tape functions/lib/__test__/*.js"
+    "test": "cd functions/lib/ && tape __test__/*.js | faucet"
   },
   "repository": {
     "type": "git",
@@ -19,9 +19,5 @@
     "serverless": "0.5.2",
     "serverless-offline": "^2.2.7",
     "serverless-optimizer-plugin": "^2.1.0"
-  },
-  "devDependencies": {
-    "faucet": "0.0.1",
-    "tape": "^4.5.1"
   }
 }
