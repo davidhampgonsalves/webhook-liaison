@@ -5,10 +5,10 @@
 [![MIT license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
 ##Features
-* Runs on AWS Lambda which means it will probably be free to use(> 1 million inbound webhooks).
-* Super powerful [JMESPath](https://jmespath.org) powers all filters & transformations.
-* Single Webhook can trigger many Webhooks each with own filters & transformations.
-* Supports `application/x-www-form-urlencoded` & `application/json` inbound/outbound requests.
+* Runs on [AWS Lambda](https://aws.amazon.com/lambda/) using [Serverless Framewor](https://github.com/serverless/serverless) so its low maintenence and probably free(< 1 million inbound webhooks a month).
+* All filters & transformations are powered by the super powerful [JMESPath](https://jmespath.org).
+* Single inbound Webhook can trigger multiple outbound  Webhooks each with its own filters & transformations.
+* Supports `application/x-www-form-urlencoded` & `application/json` content-types for inbound/outbound requests.
 
 ##Examples
 ###Github -> Slack
