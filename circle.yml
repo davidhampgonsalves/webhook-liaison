@@ -1,5 +1,3 @@
 test:
   override:
-    - cd functions/lib
-    - npm install
-    - npm run circleci
+    - cd functions/lib && npm install && npm run circleci
