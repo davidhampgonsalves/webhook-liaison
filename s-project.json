@@ -1,0 +1,8 @@
+{
+  "name": "webhook-transmogrifier",
+  "custom": {},
+  "plugins": [
+    "serverless-offline",
+    "serverless-optimizer-plugin"
+  ]
+}

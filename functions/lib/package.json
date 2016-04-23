@@ -1,0 +1,21 @@
+{
+  "name": "webhook-transmogrifier",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape __test__/**/*.js | faucet"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jmespath": "^0.15.0",
+    "qs": "^6.1.0",
+    "request": "^2.69.0",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "faucet": "0.0.1",
+    "tape": "^4.5.1"
+  }
+}
