@@ -1,6 +1,6 @@
 'use strict'
 
-var lib = require('../lib').webhook-transmogrifier
+var lib = require('../lib/webhook-transmogrifier.js')
 
 module.exports.handler = function(event, context) {
   console.log('event:', event)

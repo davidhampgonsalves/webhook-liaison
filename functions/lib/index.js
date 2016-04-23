@@ -1,6 +1,8 @@
 'use strict'
 
+var webhookTransmogrifier = require('./webhook-transmogrifier.js')-
+var jsonTransmogrifier = require('./json-transmogrifier.js')-
 module.exports = {
-  webhookTransmogrifier: require('./webhook-transmogrifier.js'),
-  jsonTransmogrifier: require('./json-transmogrifier.js')
+  webhookTransmogrifier: webhookTransmogrifier,
+  jsonTransmogrifier: jsonTransmogrifier,
 }

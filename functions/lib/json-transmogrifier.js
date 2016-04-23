@@ -8,7 +8,6 @@ module.exports.transmogrify = function transmogrify(config, original_json, json)
   if(filter(config, original_json))
     return null
 
-  var json = JSON.parse(JSON.stringify(json))
   json = transform(config, json)
   return extract(config, json)
 }
