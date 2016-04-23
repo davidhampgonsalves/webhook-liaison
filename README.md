@@ -22,7 +22,7 @@ Post to Slack when a pull request is labelled.
     "extractions": [ "{ text: join('', ['<', pull_request.html_url, '|', pull_request.title '> by ', pull_request.user.login]) }" ]
   }
 ```
-Then [configure](https://developer.github.com/webhooks/) GitHub to push the webhook to your aws endpoint like: https://aws-lambda-url.com/webhooktransmogrifier/transmogrify/github-pr
+Then [configure](https://developer.github.com/webhooks/) GitHub to send a webhook to: `http://aws-lambda-url.com/webhooktransmogrifier/transmogrify/github-pr`.
 
 
 ###Travis-CI -> Slack
@@ -35,10 +35,10 @@ Post to Slack when CI breaks or is fixed on an important branch.
       "branch == `master` || branch == `important_branch`",
       "status_message == `Fixed` || status_message == `Broken`"
     ],
-    "extractions": [ "{ text: join(' ', ['Tests are *', status_message, '* on `', branch, '`: ', message]) }" ]
+    "extractions": [ "{ text: join('', ['Tests are *', status_message, '* on `', branch, '`: ', message]) }" ]
   }
 ```
-Then [configure](https://docs.travis-ci.com/user/notifications/#Webhook-notification) [Travis-CI](https://travis-ci.com/) to push the webhook to your aws endpoint like: https://aws-lambda-url.com/webhooktransmogrifier/transmogrify/travis-ci
+Then [configure](https://docs.travis-ci.com/user/notifications/#Webhook-notification) [Travis-CI](https://travis-ci.com/) to send a webhook to: `http://aws-lambda-url.com/webhooktransmogrifier/transmogrify/travis-ci`.
 
 
 ##Installation
