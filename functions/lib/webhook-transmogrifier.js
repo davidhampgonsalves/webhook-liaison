@@ -74,7 +74,7 @@ module.exports.transmogrifyAndDeliver = function transmogrifyAndDeliver(event, c
 
   exports.deliver(config, json, webhookRequest, function(results) {
     exports.logResults(results)
-    cb(null, results)
+    return cb(null, results)
   })
 }
 
@@ -106,7 +106,7 @@ module.exports.deliver = function deliver(config, json, req, cb) {
       }
 
       if(_.values(results).reduce((sum, i) => { return sum + i.length }, 0) === config.destinations.length) {
-        cb(results)
+        return cb(results)
       }
     })
   })
