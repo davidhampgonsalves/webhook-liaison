@@ -6,6 +6,7 @@ module.exports.handler = function(event, context) {
   console.log('event:', event)
 
   lib.transmogrifyAndDeliver(event, function callback(err, results) {
+    //TODO: something
     context.done(null, {
       message: 'transmogrify!'
     })
