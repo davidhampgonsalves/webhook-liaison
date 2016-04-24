@@ -2,10 +2,11 @@
 
 var test = require('tape');
 var _ = require('underscore')
+require('json5/lib/require')
 
 var webhookTransmogrifier = require('..').webhookTransmogrifier
 
-var configs = require('./test-configs.json')
+var configs = require('./travis-configs.json5')
 
 test('expand uri encoded json form parameter for travis', function (t) {
   var input = "payload=%7B%22id%22%3A1%2C%22number%22%3A%221%22%2C%22status%22%3Anull%2C%22started_at%22%3Anull%2C%22finished_at%22%3Anull%2C%22status_message%22%3A%22Fixed%22%2C%22commit%22%3A%2262aae5f70ceee39123ef%22%2C%22branch%22%3A%22master%22%2C%22message%22%3A%22the%20commit%20message%22%2C%22compare_url%22%3A%22https%3A%2F%2Fgithub.com%2Fsvenfuchs%2Fminimal%2Fcompare%2Fmaster...develop%22%2C%22committed_at%22%3A%222011-11-11T11%3A%2011%3A%2011Z%22%2C%22committer_name%22%3A%22Sven%20Fuchs%22%2C%22committer_email%22%3A%22svenfuchs%40artweb-design.de%22%2C%22author_name%22%3A%22Sven%20Fuchs%22%2C%22author_email%22%3A%22svenfuchs%40artweb-design.de%22%2C%22type%22%3A%22push%22%2C%22build_url%22%3A%22https%3A%2F%2Ftravis-ci.org%2Fsvenfuchs%2Fminimal%2Fbuilds%2F1%22%2C%22repository%22%3A%7B%22id%22%3A1%2C%22name%22%3A%22minimal%22%2C%22owner_name%22%3A%22svenfuchs%22%2C%22url%22%3A%22http%3A%2F%2Fgithub.com%2Fsvenfuchs%2Fminimal%22%7D%2C%22config%22%3A%7B%22notifications%22%3A%7B%22webhooks%22%3A%5B%22http%3A%2F%2Fevome.fr%2Fnotifications%22%2C%22http%3A%2F%2Fexample.com%2F%22%5D%7D%7D%2C%22matrix%22%3A%5B%7B%22id%22%3A2%2C%22repository_id%22%3A1%2C%22number%22%3A%221.1%22%2C%22state%22%3A%22created%22%2C%22started_at%22%3Anull%2C%22finished_at%22%3Anull%2C%22config%22%3A%7B%22notifications%22%3A%7B%22webhooks%22%3A%5B%22http%3A%2F%2Fevome.fr%2Fnotifications%22%2C%22http%3A%2F%2Fexample.com%2F%22%5D%7D%7D%2C%22status%22%3Anull%2C%22log%22%3A%22%22%2C%22result%22%3Anull%2C%22parent_id%22%3A1%2C%22commit%22%3A%2262aae5f70ceee39123ef%22%2C%22branch%22%3A%22master%22%2C%22message%22%3A%22the%20commit%20message%22%2C%22committed_at%22%3A%222011-11-11T11%3A%2011%3A%2011Z%22%2C%22committer_name%22%3A%22Sven%20Fuchs%22%2C%22committer_email%22%3A%22svenfuchs%40artweb-design.de%22%2C%22author_name%22%3A%22Sven%20Fuchs%22%2C%22author_email%22%3A%22svenfuchs%40artweb-design.de%22%2C%22compare_url%22%3A%22https%3A%2F%2Fgithub.com%2Fsvenfuchs%2Fminimal%2Fcompare%2Fmaster...develop%22%7D%5D%7D"

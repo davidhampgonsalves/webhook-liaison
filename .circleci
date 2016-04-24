@@ -1,4 +1,0 @@
-test:
-  override:
-    - cd functions/lib
-    - npm run circleci

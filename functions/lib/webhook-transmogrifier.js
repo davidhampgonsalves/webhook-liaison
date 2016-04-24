@@ -1,30 +1,28 @@
 'use strict'
 
 //TODO:
-// extractions / transformations at destination level
-// error if unknow config key was found
+// error if unknown config key was found
+// test each transformation, extraction config item is an object
+// test each filter is a ... string?
+// run each operation against empty input to verify its valid jmespath
+//
 // figure out how to run with offline
 // use standard error message format (stringify with indent)
-
+//
 var request = require('request')
 var _ = require('underscore')
 var qs = require('qs')
 var jsonTransmogrifier = require('./json-transmogrifier.js')
+require('json5/lib/require')
 
-var configs = require('./webhook-transmogrifier.json')
+var configs = require('./webhook-transmogrifier.json5')
 
 var CONFIG_DEFAULTS = {
   destinations: [],
-  filters: [],
-  transformations: [],
-  extractions: [],
 }
 var DESTINATION_CONFIG_DEFAULTS = {
   method: 'POST',
   contentType: 'application/json',
-  filters: [],
-  transformations: [],
-  extractions: [],
 }
 
 module.exports.buildWebhookRequest = function buildWebhookRequest(e, config) {
@@ -36,8 +34,8 @@ module.exports.buildWebhookRequest = function buildWebhookRequest(e, config) {
   try {
     if(e.contentType === 'application/x-www-form-urlencoded') {
       request.json = qs.parse(e.body)
-      if(config["json-embeded-form-parameter"])
-        request.json = JSON.parse(decodeURIComponent(request.json[config["json-embeded-form-parameter"]]))
+      if(config["jsonEmbededFormParameter"])
+        request.json = JSON.parse(decodeURIComponent(request.json[config["jsonEmbededFormParameter"]]))
     } else
       request.json = e.json
   } catch(err) {
@@ -50,18 +48,24 @@ module.exports.buildWebhookRequest = function buildWebhookRequest(e, config) {
 module.exports.configFor = function configFor(configName, configs) {
   var config = configs[configName]
 
+  // backfill default config options
   if(!config)
     throw new Error(`configuration for ${configName} not found`)
   _.defaults(config, CONFIG_DEFAULTS)
+  _.defaults(config, jsonTransmogrifier.CONFIG_DEFAULTS)
 
   if(config.destinations.length === 0)
     throw new Error(`destinations is required for the ${configName} configuration`)
 
   config.destinations.forEach((d) => {
     _.defaults(d, DESTINATION_CONFIG_DEFAULTS)
+    _.defaults(d, jsonTransmogrifier.CONFIG_DEFAULTS)
     if(!d.url)
       throw new Error(`url is required for all destinations, missing for ${configName} ${d}`)
   })
+
+  var errs = jsonTransmogrifier.validateConfig(config)
+  //TODO log errors
 
   return config
 };

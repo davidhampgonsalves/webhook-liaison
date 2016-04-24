@@ -5,9 +5,9 @@
 [![MIT license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
 ##Features
-* Runs on [AWS Lambda](https://aws.amazon.com/lambda/) using [Serverless Framewor](https://github.com/serverless/serverless) so its low maintenence and probably free(< 1 million inbound webhooks a month).
+* Runs on [AWS Lambda](https://aws.amazon.com/lambda/) using [Serverless Framework](https://github.com/serverless/serverless) so its low maintenence and probably free(< 1 million requests a month).
 * All filters & transformations are powered by the super powerful [JMESPath](https://jmespath.org).
-* Single inbound Webhook can trigger multiple outbound  Webhooks each with its own filters & transformations.
+* Single Webhook can trigger multiple outbound Webhooks each with its own filters & transformations.
 * Supports `application/x-www-form-urlencoded` & `application/json` content-types for inbound/outbound requests.
 
 ##Examples
@@ -43,46 +43,17 @@ Then [configure](https://docs.travis-ci.com/user/notifications/#Webhook-notifica
 
 
 ##Installation
-Install serverless
-Clone this repo
-Make some configurations
-`sls dash deploy`
+###Run Locally
+`npm install && npm start`
+
+##Run on AWS Lambda
+* Install the Serverless Framework.
+* Clone this repo.
+* Modify one of the example configs, found in: [`functions/lib/webhook-transmogrifier.json`](functions/lib/webhook-transmografier.json5).
+* Deploy `sls dash deploy`.
 
 ##Configuration Options
+Configuration file support [JSON5](https://github.com/json5/json5) which allows a cleaner syntax + comments.
+
 ```
-"extractions-transformations-on-destinations": {
-  "destinations": [
-    {
-      "url": "http://jsonplaceholder.typicode.com/posts/1",
-    },
-    {
-      "url": "http://jsonplaceholder.typicode.com/posts/2",
-      "method": "PUT",
-      "contentType": "application/x-www-form-urlencoded",
-      "filters": ["locations[0].name == 'Not Found'"]
-      "transformations": [
-        "{ someCities: locations[1:3], cityCount: length(locations) }",
-        "{ keys: keys(@) }"
-      ],
-      "extractions": [
-        "{ message: join(' ', ['you live in', locations[0].name]) }",
-        "{ someStates: someCities[].state }",
-        "{ k: keys }"
-      ]
-    }
-  ],
-  "filters": [
-    "branch == `master` || branch == `important-branch`",
-    "status_message == `Fixed` || status_message == `Broken`"
-  ],
-  "transformations": [
-    "{ someCities: locations[1:3], cityCount: length(locations) }",
-    "{ keys: keys(@) }"
-  ],
-  "extractions": [
-    "{ message: join(' ', ['you live in', locations[0].name]) }",
-    "{ someStates: someCities[].state }",
-    "{ k: keys }"
-  ]
-}
 ```

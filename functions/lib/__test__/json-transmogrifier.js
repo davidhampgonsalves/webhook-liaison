@@ -2,6 +2,7 @@
 
 var test = require('tape');
 var _ = require('underscore')
+require('json5/lib/require')
 
 var webhookTransmogrifier = require('..').webhookTransmogrifier
 var jsonTransmogrifier = require('..').jsonTransmogrifier
@@ -9,8 +10,10 @@ var jsonTransmogrifier = require('..').jsonTransmogrifier
 
 //todo
 // test empty extraction results in empty output
-// test each transformation, extraction config item is an object
-// test each filter is a ... string?
+// test extract / fileter / transform at destination level
+// test bad configs
+//   filter, transformation, extraction not array
+//   ^ not valid jmes path
 
 var input = {
   "locations": [
@@ -20,12 +23,12 @@ var input = {
     {"name": "Olympia", "state": "WA"},
   ]
 }
-var configs = require('./test-configs.json')
+var configs = require('./test-configs.json5')
 
 test('single transformation', function (t) {
   t.plan(2);
 
-  var config = webhookTransmogrifier.configFor('single-transformation', configs)
+  var config = webhookTransmogrifier.configFor('singleTransformation', configs)
   var output = jsonTransmogrifier.transmogrify(config, input, input)
 
   t.equal(output["message"], 'you live in Seattle', 'single transformation concat')
@@ -35,7 +38,7 @@ test('single transformation', function (t) {
 test('multi transformation', function (t) {
   t.plan(2);
 
-  var config = webhookTransmogrifier.configFor('multi-transformation', configs)
+  var config = webhookTransmogrifier.configFor('multiTransformation', configs)
   var output = jsonTransmogrifier.transmogrify(config, input, input)
 
   t.equal(output["message"], 'you live in Seattle', 'single transformation concat')
@@ -45,7 +48,7 @@ test('multi transformation', function (t) {
 test('single filter', function (t) {
   t.plan(1);
 
-  var config = webhookTransmogrifier.configFor('single-filter', configs)
+  var config = webhookTransmogrifier.configFor('singleFilter', configs)
   var wasFiltered = jsonTransmogrifier.transmogrify(config, input, input) === null
 
   t.ok(wasFiltered, 'should be filtered')
@@ -54,7 +57,7 @@ test('single filter', function (t) {
 test('single filter', function (t) {
   t.plan(1);
 
-  var config = webhookTransmogrifier.configFor('multi-filter', configs)
+  var config = webhookTransmogrifier.configFor('multiFilter', configs)
   var wasFiltered = jsonTransmogrifier.transmogrify(config, input, input) === null
 
   t.ok(wasFiltered, 'should be filtered')
@@ -63,7 +66,7 @@ test('single filter', function (t) {
 test('single filter pass', function (t) {
   t.plan(1);
 
-  var config = webhookTransmogrifier.configFor('single-filter-pass', configs)
+  var config = webhookTransmogrifier.configFor('singleFilterPass', configs)
   var wasFiltered = jsonTransmogrifier.transmogrify(config, input, input) === null
 
   t.ok(!wasFiltered, 'should not be filtered')
