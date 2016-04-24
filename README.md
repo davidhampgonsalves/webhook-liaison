@@ -45,8 +45,9 @@ Then [configure](https://docs.travis-ci.com/user/notifications/#Webhook-notifica
 ##Installation
 ###Run Locally
 `npm install && npm start`
+__ses [Serverless Offline](https://github.com/dherault/serverless-offline) which sometimes doesn't like `application/x-www-form-urlencoded`.__
 
-##Run on AWS Lambda
+##Deploy to AWS Lambda
 * Install the Serverless Framework.
 * Clone this repo.
 * Modify one of the example configs, found in: [`functions/lib/webhook-transmogrifier.json`](functions/lib/webhook-transmografier.json5).
