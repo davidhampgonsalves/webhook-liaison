@@ -2,8 +2,6 @@
 
 //TODO:
 // error if unknown config key was found
-// test each transformation, extraction config item is an object
-// test each filter is a ... string?
 // run each operation against empty input to verify its valid jmespath
 //
 // figure out how to run with offline
@@ -15,6 +13,7 @@ var qs = require('qs')
 var jsonTransmogrifier = require('./json-transmogrifier.js')
 require('json5/lib/require')
 
+var WebhookResults = require('./webhook-results.js')
 var configs = require('./webhook-transmogrifier.json5')
 
 var CONFIG_DEFAULTS = {
@@ -68,54 +67,55 @@ module.exports.configFor = function configFor(configName, configs) {
   //TODO log errors
 
   return config
-};
-
-module.exports.transmogrifyAndDeliver = function transmogrifyAndDeliver(event, cb, override_configs) {
-  var config = exports.configFor(event.configName, override_configs || configs)
-  var webhookRequest = exports.buildWebhookRequest(event, config)
-
-  var json = jsonTransmogrifier.transmogrify(config, webhookRequest.json, webhookRequest.json)
-
-  exports.deliver(config, json, webhookRequest, function(results) {
-    exports.logResults(results)
-    return cb(null, results)
-  })
 }
 
-module.exports.deliver = function deliver(config, json, req, cb) {
-  var original_json = req.json
-  var results = {filtered: [], sent: [], errs: []}
+module.exports.process = function process(event, cb, override_configs) {
+  var config = exports.configFor(event.configName, override_configs || configs)
+  var webhookRequest = exports.buildWebhookRequest(event, config)
+  var results = new WebhookResults()
+
+  var filter = jsonTransmogrifier.filter(config, webhookRequest.json)
+  if(filter) {
+    results.addFiltered(filter, webhookRequest.json)
+    return cb(results)
+  }
+  var json = jsonTransmogrifier.transmogrify(config, webhookRequest.json)
+
   config.destinations.forEach((d) => {
-    var transmogrifiedJson = jsonTransmogrifier.transmogrify(d, original_json, json)
-    if(transmogrifiedJson === null) {
-      results.filtered.push(d)
-      if(_.values(results).reduce((sum, i) => { return sum + i.length }, 0) === config.destinations.length) {
-        cb(results)
-      }
-      return
+    filter = jsonTransmogrifier.filter(d, webhookRequest.json)
+    if(filter) {
+      results.addFiltered(filter, webhookRequest.json)
+      return results.isDeliveryComplete(config) && cb(results)
     }
+    json = jsonTransmogrifier.transmogrify(d, json)
 
-    var options = {
-      url: d.url,
-      method: d.method,
-    }
-    options[d.contentType === 'application/x-www-form-urlencoded' ? 'form' : 'json'] = transmogrifiedJson
-    request(options, function requestCallback(err, response, body) {
-      if (err) {
-        results.errs.push(`request for delivery ${d} failed`, err)
-      } else {
-        console.log(`successfully sent ${JSON.stringify(transmogrifiedJson)} to ${d.url} response: ${JSON.stringify(response)} body: ${body}`)
-        d.json = transmogrifiedJson
-        results.sent.push(d)
-      }
-
-      if(_.values(results).reduce((sum, i) => { return sum + i.length }, 0) === config.destinations.length) {
-        return cb(results)
-      }
+    exports.deliver(d, json, webhookRequest, (deliveryResults) => {
+      results.merge(deliveryResults)
+      return results.isDeliveryComplete(config) && cb(results)
     })
   })
 }
 
+module.exports.deliver = function deliver(destination, json, req, cb) {
+  var results = new WebhookResults()
+  var options = {
+    url: destination.url,
+    method: destination.method,
+  }
+
+  options[destination.contentType === 'application/x-www-form-urlencoded' ? 'form' : 'json'] = json
+  request(options, (err, response, body) => {
+    if (err) {
+      results.addDeliveryError(err, destination, json)
+    } else {
+      results.addDeliveryDetails(destination, json)
+    }
+    return cb(results)
+  })
+}
+
 module.exports.logResults = function logResults(results) {
+  // console.log(`successfully sent ${JSON.stringify(transmogrifiedJson)} to ${d.url} response: ${JSON.stringify(response)} body: ${body}`)
   console.log(results)
 }
+

@@ -14,6 +14,7 @@ var jsonTransmogrifier = require('..').jsonTransmogrifier
 // test bad configs
 //   filter, transformation, extraction not array
 //   ^ not valid jmes path
+//   keys that don't exist
 
 var input = {
   "locations": [
@@ -49,25 +50,25 @@ test('single filter', function (t) {
   t.plan(1);
 
   var config = webhookTransmogrifier.configFor('singleFilter', configs)
-  var wasFiltered = jsonTransmogrifier.transmogrify(config, input, input) === null
+  var filter = jsonTransmogrifier.filter(config, input)
 
-  t.ok(wasFiltered, 'should be filtered')
+  t.ok(!!filter, 'should be filtered')
 })
 
 test('single filter', function (t) {
   t.plan(1);
 
   var config = webhookTransmogrifier.configFor('multiFilter', configs)
-  var wasFiltered = jsonTransmogrifier.transmogrify(config, input, input) === null
+  var filter = jsonTransmogrifier.filter(config, input)
 
-  t.ok(wasFiltered, 'should be filtered')
+  t.ok(!!filter, 'should be filtered')
 })
 
 test('single filter pass', function (t) {
   t.plan(1);
 
   var config = webhookTransmogrifier.configFor('singleFilterPass', configs)
-  var wasFiltered = jsonTransmogrifier.transmogrify(config, input, input) === null
+  var filter = jsonTransmogrifier.filter(config, input)
 
-  t.ok(!wasFiltered, 'should not be filtered')
+  t.ok(!filter, 'should not be filtered')
 })

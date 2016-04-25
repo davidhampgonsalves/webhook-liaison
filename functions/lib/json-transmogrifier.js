@@ -10,14 +10,6 @@ module.exports.CONFIG_DEFAULTS = {
   extractions: [],
 }
 
-module.exports.transmogrify = function transmogrify(config, original_json, json) {
-  if(filter(config, original_json))
-    return null
-
-  json = transform(config, json)
-  return extract(config, json)
-}
-
 module.exports.validateConfig = function validateConfig(config) {
   var errs = []
 
@@ -41,15 +33,19 @@ module.exports.validateConfig = function validateConfig(config) {
   return errs
 }
 
-function filter(config, input) {
+module.exports.transmogrify = function transmogrify(config, json) {
+  json = transform(config, json)
+  return extract(config, json)
+}
+
+module.exports.filter = function filter(config, input) {
   var filters = config["filters"]
 
   for(var i=0, len=filters.length ; i < len ; i++) {
     var f = filters[i]
     try {
       if(!jmespath.search(input, f)) {
-        console.log(`event filtered by ${f}`)
-        return true
+        return f
       }
     } catch(err) {
       throw new Error(`${err} occured for filter:
@@ -59,7 +55,7 @@ function filter(config, input) {
     }
   }
 
-  return false
+  return null
 }
 
 function transform(config, input) {
@@ -88,4 +84,3 @@ function transmogrify(config, action, input, output) {
 
   return output
 }
-
