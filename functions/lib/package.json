@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "tape __test__/**/*.js | faucet",
-    "circleci": "istanbul cover --dir $CIRCLE_ARTIFACTS tap __test__/*.js | tap-xunit --package='DavidHampGonsalves.WebhookTransmogrifier' > $CIRCLE_TEST_REPORTS/tape/tap.xml"
+    "circleci": "istanbul cover --dir $CIRCLE_ARTIFACTS tape __test__/*.js | tap-xunit --package='DavidHampGonsalves.WebhookTransmogrifier' > $CIRCLE_TEST_REPORTS/tape/tap.xml"
   },
   "author": "",
   "license": "ISC",
