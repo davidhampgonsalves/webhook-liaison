@@ -87,9 +87,9 @@ module.exports.process = function process(event, cb, override_configs) {
       results.addFiltered(filter, webhookRequest.json)
       return results.isDeliveryComplete(config) && cb(results)
     }
-    json = jsonTransmogrifier.transmogrify(d, json)
+    var jsonForDestination = jsonTransmogrifier.transmogrify(d, json)
 
-    exports.deliver(d, json, webhookRequest, (deliveryResults) => {
+    exports.deliver(d, jsonForDestination, webhookRequest, (deliveryResults) => {
       results.merge(deliveryResults)
       return results.isDeliveryComplete(config) && cb(results)
     })
