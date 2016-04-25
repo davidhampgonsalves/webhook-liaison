@@ -6,3 +6,5 @@ test:
   override:
     - cd functions/lib && mkdir -p $CIRCLE_TEST_REPORTS/tape
     - cd functions/lib && npm install && npm run circleci
+  post:
+    - cd functions/lib && npm run codeclimate
