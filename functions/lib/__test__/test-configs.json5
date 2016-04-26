@@ -81,13 +81,13 @@
         method: "GET",
         filters: ["locations[0].name == 'Seattle'"],
         transformations: ["{ emailTo: 'not-david@seattle.com' }"],
-        extractions: ["{ importantState: someStates[0], emailAddress: emailTo }"],
+        extractions: ["{ index: `2`, importantState: someStates[0], emailAddress: emailTo }"],
       },
       {
         url: "http://jsonplaceholder.typicode.com/posts/1",
         method: "GET",
         filters: ["locations[0].name == 'Seattle'"],
-        transformations: ["{ emailTo: 'david@seattle.com' }"],
+        transformations: ["{ index: `1`, emailTo: 'david@seattle.com' }"],
       },
       {
         url: "http://jsonplaceholder.typicode.com/posts/2",
