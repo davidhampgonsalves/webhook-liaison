@@ -59,7 +59,7 @@ test('transmogrify webhook with multi destinations and transformations', functio
   webhookTransmogrifier.process(jsonEvent, (results) => {
     t.equal(results.filtered.length, 1, 'should be filtered')
     t.equal(results.sent.length, 2, 'should be sent')
-    t.same(results.sent[0].json, { emailTo: 'david@seattle.com', k: [ 'locations' ], message: 'you live in Seattle', someStates: [ 'NY', 'WA' ] }, 'should be location')
-    t.same(results.sent[1].json, { emailAddress: 'not-david@seattle.com', importantState: 'NY' }, 'should be location')
+    t.same(results.sent[0].json, { emailTo: 'david@seattle.com', k: [ 'locations' ], message: 'you live in Seattle', someStates: [ 'NY', 'WA' ] }, 'should have json')
+    t.same(results.sent[1].json, { emailAddress: 'not-david@seattle.com', importantState: 'NY' }, 'should have json')
   }, configs)
 })

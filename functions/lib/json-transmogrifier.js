@@ -33,11 +33,6 @@ module.exports.validateConfig = function validateConfig(config) {
   return errs
 }
 
-module.exports.transmogrify = function transmogrify(config, json) {
-  json = transform(config, json)
-  return extract(config, json)
-}
-
 module.exports.filter = function filter(config, input) {
   var filters = config["filters"]
 
@@ -56,6 +51,11 @@ module.exports.filter = function filter(config, input) {
   }
 
   return null
+}
+
+module.exports.transmogrify = function transmogrify(config, json) {
+  json = transform(config, json)
+  return extract(config, json)
 }
 
 function transform(config, input) {
