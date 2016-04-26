@@ -3,8 +3,6 @@
     destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
   },
 
-  missingManditory: {},
-
   singleTransformation: {
     destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
     filters: [],

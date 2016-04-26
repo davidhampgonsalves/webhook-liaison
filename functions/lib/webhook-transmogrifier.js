@@ -10,9 +10,11 @@
 var request = require('request')
 var _ = require('underscore')
 var qs = require('qs')
-var jsonTransmogrifier = require('./json-transmogrifier.js')
+var jmespath = require('jmespath')
+var validUrl = require('valid-url')
 require('json5/lib/require')
 
+var jsonTransmogrifier = require('./json-transmogrifier.js')
 var WebhookResults = require('./webhook-results.js')
 var configs = require('./webhook-transmogrifier.json5')
 
@@ -33,8 +35,8 @@ module.exports.buildWebhookRequest = function buildWebhookRequest(e, config) {
   try {
     if(e.contentType === 'application/x-www-form-urlencoded') {
       request.json = qs.parse(e.body)
-      if(config["jsonEmbededFormParameter"])
-        request.json = JSON.parse(decodeURIComponent(request.json[config["jsonEmbededFormParameter"]]))
+      if(config['jsonEmbededFormParameter'])
+        request.json = JSON.parse(decodeURIComponent(request.json[config['jsonEmbededFormParameter']]))
     } else
       request.json = e.json
   } catch(err) {
@@ -44,33 +46,55 @@ module.exports.buildWebhookRequest = function buildWebhookRequest(e, config) {
   return request
 }
 
+var validOptions = ['url', 'jsonEmbededFormParameter'].concat(
+    Object.keys(DESTINATION_CONFIG_DEFAULTS),
+    Object.keys(CONFIG_DEFAULTS),
+    Object.keys(jsonTransmogrifier.CONFIG_DEFAULTS))
+
+module.exports.validateConfig = function validateConfig(config) {
+  var errs = []
+
+  if(config.destinations.length === 0)
+    errs.push(`at least one destination is required.`)
+  else {
+    var invalidUrls = _.reduce(config.destinations, (invalids, d) => {
+      validUrl.isUri(d.url) || invalids.push(d.url)
+      return invalids
+    }, [])
+    invalidUrls.length > 0 && errs.push(`invalid url(s) ${JSON.stringify(invalidUrls)}.`)
+  }
+
+  errs = errs.concat(jsonTransmogrifier.validateConfig(config),
+      _.flatten(config.destinations.map(jsonTransmogrifier.validateConfig)))
+
+  var options = Object.keys(config).concat(config.destinations.reduce((o, d) => o.concat(Object.keys(d)), []))
+  var invalidOptions = _.difference(_.flatten(options), validOptions)
+  invalidOptions.length > 0 && errs.push(`invalid configuration option(s) ${JSON.stringify(invalidOptions)}.`)
+
+  return errs
+}
+
 module.exports.configFor = function configFor(configName, configs) {
   var config = configs[configName]
 
-  // backfill default config options
   if(!config)
     throw new Error(`configuration for ${configName} not found`)
+
   _.defaults(config, CONFIG_DEFAULTS)
   _.defaults(config, jsonTransmogrifier.CONFIG_DEFAULTS)
-
-  if(config.destinations.length === 0)
-    throw new Error(`destinations is required for the ${configName} configuration`)
 
   config.destinations.forEach((d) => {
     _.defaults(d, DESTINATION_CONFIG_DEFAULTS)
     _.defaults(d, jsonTransmogrifier.CONFIG_DEFAULTS)
-    if(!d.url)
-      throw new Error(`url is required for all destinations, missing for ${configName} ${d}`)
   })
-
-  var errs = jsonTransmogrifier.validateConfig(config)
-  //TODO log errors
 
   return config
 }
 
 module.exports.process = function process(event, cb, override_configs) {
   var config = exports.configFor(event.configName, override_configs || configs)
+  var errs = exports.validateConfig(config)
+  //TODO: log errors
   var webhookRequest = exports.buildWebhookRequest(event, config)
   var results = new WebhookResults()
 

@@ -17,9 +17,9 @@ module.exports.validateConfig = function validateConfig(config) {
   operationTypes.forEach((operationType) => {
     var operations = jmespath.search(config, `[[${operationType}], b[].${operationType}][]`)
 
-    operations.forEach((operation) => {
+    _.flatten(operations).forEach((operation) => {
       if(!_.isArray(operation)) {
-        errs.push(`${operationType} "${operation}" should be an array ${config}.`)
+        errs.push(`${operationType} "${operation}" should be an array.`)
         return
       }
       try {

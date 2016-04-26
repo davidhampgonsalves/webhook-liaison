@@ -17,10 +17,49 @@ var input = {
 var configs = require('./test-configs.json5')
 
 test('manditory properties', function (t) {
-  t.plan(1)
+  t.plan(2)
+  var configs = { empty: {} }
 
-  var configFor = webhookTransmogrifier.configFor.bind(webhookTransmogrifier, 'missingManditory', configs)
-  t.throws(configFor, /destinations/, 'missing destination throws')
+  var config = webhookTransmogrifier.configFor('empty', configs)
+  var errs = webhookTransmogrifier.validateConfig(config)
+  t.equal(errs.length, 1, 'should have error')
+  t.ok(errs[0].match(/destination/), 'should be missing required options')
+})
+
+test('extra / invalid config keys', function (t) {
+  t.plan(2)
+
+  var configs = { extraKeys: { destinations: [{ foo: "bar", url: "http://url.com" }], whomp: "whomp" } }
+
+  var config = webhookTransmogrifier.configFor('extraKeys', configs)
+  var errs = webhookTransmogrifier.validateConfig(config)
+  t.equal(errs.length, 1, 'should have error')
+  t.ok(errs[0].match(/whomp/) && errs[0].match(/foo/), 'should be invalid option')
+})
+
+test('operations are wrong types', function (t) {
+  t.plan(3)
+
+  var configs = { operationsWrongTypes: { destinations: [{ url: "http://url.com", extractions: "" }], filters: 1 }}
+
+  var config = webhookTransmogrifier.configFor('operationsWrongTypes', configs)
+  var errs = webhookTransmogrifier.validateConfig(config)
+
+  t.equal(errs.length, 2, 'should have error')
+  t.ok(errs[0].match(/array/), 'should have type error')
+  t.ok(errs[1].match(/array/), 'should have type error')
+})
+
+test('invalid urls', function (t) {
+  t.plan(2)
+
+  var configs = { invalidUrls: { destinations: [{ url: "ht" }, { url: "www.wrong.com"}] }}
+
+  var config = webhookTransmogrifier.configFor('invalidUrls', configs)
+  var errs = webhookTransmogrifier.validateConfig(config)
+
+  t.equal(errs.length, 1, 'should have error')
+  t.ok(errs[0].match(/wrong/), 'should have url error')
 })
 
 test('config defaults', function (t) {
