@@ -144,10 +144,10 @@ module.exports.deliver = function deliver(destination, json, req, cb) {
 
   options[destination.contentType === 'application/x-www-form-urlencoded' ? 'form' : 'json'] = json
   request(options, (err, response, body) => {
-    if (err) {
-      results.addDeliveryError(destination, json, err)
-    } else {
+    if (!err && response.statusCode == 200) {
       results.addDeliveryDetails(destination, json)
+    } else {
+      results.addDeliveryError(destination, json, err)
     }
     return cb(results)
   })

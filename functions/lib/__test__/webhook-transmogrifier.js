@@ -10,6 +10,9 @@ var webhookTransmogrifier = require('../webhook-transmogrifier.js')
 //  auth
 //  verify no config errors on valid cases
 //  action is array but inside is number or array
+//  failed delivery b/c:
+//    non 200
+//    timeout
 var input = {
   "locations": [
     {"name": "Seattle", "state": "WA"},
