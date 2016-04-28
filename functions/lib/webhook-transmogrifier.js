@@ -142,7 +142,13 @@ module.exports.deliver = function deliver(destination, json, req, cb) {
   if(destination.auth)
     options.auth = destination.auth
 
-  options[destination.contentType === 'application/json' ? 'json' : 'form'] = json
+  var formatOption = 'form'
+  if(destination.method === 'GET')
+    formatOption = 'qs'
+  else if(destination.contentType === 'application/json')
+    formatOption = 'json'
+
+  options[formatOption] = json
   request(options, (err, response, body) => {
     if (!err && response.statusCode >= 200 && response.statusCode < 300) {
       results.addDeliveryDetails(destination, json)
