@@ -142,12 +142,13 @@ module.exports.deliver = function deliver(destination, json, req, cb) {
   if(destination.auth)
    options.auto = destination.auth
 
-  options[destination.contentType === 'application/x-www-form-urlencoded' ? 'form' : 'json'] = json
+  options[destination.contentType === 'application/json' ? 'json' : 'form'] = json
   request(options, (err, response, body) => {
     if (!err && response.statusCode == 200) {
       results.addDeliveryDetails(destination, json)
     } else {
-      results.addDeliveryError(destination, json, err)
+
+      results.addDeliveryError(destination, json, err ? err : `${response.statusCode}: ${body}`)
     }
     return cb(results)
   })

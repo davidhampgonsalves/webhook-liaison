@@ -28,8 +28,8 @@ WebhookResults.prototype.addFiltered = function addFiltered(destination, json, f
   this.addResult('filtered', destination, json, { filter: filter })
 }
 
-WebhookResults.prototype.addDeliveryError = function addDeliveryError(destination, json, err) {
-  this.addResult('errors', destination, json, { err: err })
+WebhookResults.prototype.addDeliveryError = function addDeliveryError(destination, json, error) {
+  this.addResult('errors', destination, json, { error: error })
 }
 
 WebhookResults.prototype.addDeliveryDetails = function addDeliveryDetails(destination, json) {
@@ -60,10 +60,9 @@ function logResult(type, result) {
     msg = [ `  ${result.filter} prevented request to ${d ? d.url : ' all '} based on ` ]
   } else {
     msg = [ `  ${d.method} ${d.url} ${d.contentType}` ]
-    if(type === 'sent')
-      msg.push(' with data')
-    else
-      msg = msg.concat([' failed b/c ', result.error, ' and data' ])
+    if(type !== 'sent')
+      msg = msg.concat([' failed b/c ', result.error ])
+    msg.push(' with data')
   }
   msg.push(result.json)
 
