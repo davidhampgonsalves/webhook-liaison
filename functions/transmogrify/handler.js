@@ -1,14 +1,16 @@
 'use strict'
 
-var lib = require('../lib/webhook-transmogrifier.js')
+const lib = require('../lib/webhook-transmogrifier.js')
+const log = require('../lib/logger.js')
 
 module.exports.handler = function(event, context) {
-  console.log('event:', event)
+  log.log('event:', event)
 
-  lib.transmogrifyAndDeliver(event, function callback(results) {
-    //TODO: something
-    context.done(null, {
-      message: 'transmogrify!'
-    })
+  lib.process(event, function callback(results) {
+    results.log()
+    if(results.errors.length > 0)
+      context.fail('Error Occured')
+    else
+      context.done(null, results)
   })
 }

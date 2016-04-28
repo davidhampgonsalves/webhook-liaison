@@ -1,8 +1,10 @@
 'use strict'
 
-var fs = require('fs')
-var _ = require('underscore')
-var jmespath = require('jmespath')
+const fs = require('fs')
+const _ = require('underscore')
+const jmespath = require('jmespath')
+
+const log = require('./logger.js')
 
 module.exports.CONFIG_DEFAULTS = {
   filters: [],
@@ -10,14 +12,17 @@ module.exports.CONFIG_DEFAULTS = {
   extractions: [],
 }
 
-module.exports.validateConfig = function validateConfig(config) {
-  var errs = []
+//TODO: validate json is json
 
-  var operationTypes = ['filters', 'extractions', 'transformations']
+module.exports.validateConfig = function validateConfig(config) {
+  const errs = []
+
+  const operationTypes = ['filters', 'extractions', 'transformations']
   operationTypes.forEach((operationType) => {
-    var operations = jmespath.search(config, `[[${operationType}], b[].${operationType}][]`)
+    var operations = jmespath.search(config, `[[${operationType}], destinations[].${operationType}][]`)
 
     _.flatten(operations).forEach((operation) => {
+      debugger
       if(!_.isArray(operation)) {
         errs.push(`${operationType} "${operation}" should be an array.`)
         return
@@ -34,7 +39,7 @@ module.exports.validateConfig = function validateConfig(config) {
 }
 
 module.exports.filter = function filter(config, input) {
-  var filters = config["filters"]
+  const filters = config["filters"]
 
   for(var i=0, len=filters.length ; i < len ; i++) {
     var f = filters[i]
@@ -44,9 +49,9 @@ module.exports.filter = function filter(config, input) {
       }
     } catch(err) {
       throw new Error(`${err} occured for filter:
-        ${JSON.stringify(f , null, 2)}
+        ${log.frmt(f)}
         for input:
-        ${JSON.stringify(input, null, 2)}`)
+        ${log.frmt(input)}`)
     }
   }
 
@@ -76,9 +81,9 @@ function transmogrify(config, action, input, output) {
       _.extend(output, jmespath.search(input, expression))
     } catch(err) {
       throw new Error(`${err} occured for ${action}:
-        ${JSON.stringify(expression , null, 2)}
+        ${log.frmt(expression)}
         for input:
-        ${JSON.stringify(input, null, 2)}`)
+        ${log.frmt(input)}`)
     }
   })
 

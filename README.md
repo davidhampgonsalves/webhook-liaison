@@ -41,6 +41,8 @@ Post to Slack when CI breaks or is fixed on an important branch.
 ```
 Then [configure](https://docs.travis-ci.com/user/notifications/#Webhook-notification) [Travis-CI](https://travis-ci.com/) to send a webhook to: `http://aws-lambda-url.com/webhooktransmogrifier/transmogrify/travis-ci`.
 
+###Papertrail -> SMS (Twillio)
+
 
 ##Installation
 ###Run Locally
@@ -58,3 +60,7 @@ Configuration file support [JSON5](https://github.com/json5/json5) which allows 
 
 ```
 ```
+
+##Common Issues
+`Unable to import module '_serverless_handler'` : Happens if you `sls dash deploy` in directory other than app root.
+

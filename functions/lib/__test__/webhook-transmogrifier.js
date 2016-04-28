@@ -6,6 +6,10 @@ require('json5/lib/require')
 
 var webhookTransmogrifier = require('../webhook-transmogrifier.js')
 
+//TODO: add tests for
+//  auth
+//  verify no config errors on valid cases
+//
 var input = {
   "locations": [
     {"name": "Seattle", "state": "WA"},

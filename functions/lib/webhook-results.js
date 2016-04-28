@@ -1,12 +1,17 @@
 'use strict'
 
-var _ = require('underscore')
+const _ = require('underscore')
 
-function WebhookResults() {
+const logger = require('./logger.js')
+
+const RESULT_TYPES = ['filtered', 'sent', 'errors']
+
+function WebhookResults(configName) {
   this.filtered = []
   this.sent = []
-  this.errs = []
-  this.all = _.values(this)
+  this.errors = []
+  this.configName = configName
+  this.all = RESULT_TYPES.map((t) => this[t])
 }
 
 WebhookResults.prototype.merge = function merge(results) {
@@ -19,16 +24,50 @@ WebhookResults.prototype.isDeliveryComplete = function isDeliveryComplete(config
   return this.all.reduce((sum, i) => { return sum + i.length }, 0) === config.destinations.length
 }
 
-WebhookResults.prototype.addFiltered = function addFiltered(filter, json) {
-  this.filtered.push({ filter: filter, json: json })
+WebhookResults.prototype.addFiltered = function addFiltered(destination, json, filter) {
+  this.addResult('filtered', destination, json, { filter: filter })
 }
 
-WebhookResults.prototype.addDeliveryError = function addDeliveryError(err, destination, json) {
-  this.errs.push({ err: err, destination: destination, json: json })
+WebhookResults.prototype.addDeliveryError = function addDeliveryError(destination, json, err) {
+  this.addResult('errors', destination, json, { err: err })
 }
 
 WebhookResults.prototype.addDeliveryDetails = function addDeliveryDetails(destination, json) {
-  this.sent.push({ destination: destination, json: json })
+  this.addResult('sent', destination, json)
+}
+
+WebhookResults.prototype.addResult = function addResult(type, destination, json, result) {
+  this[type].push(_.extend({ destination: destination, json: json }, result))
+}
+
+WebhookResults.prototype.log = function log() {
+  logger.log(this.configName + ' request results\n')
+  RESULT_TYPES.forEach((type) => {
+    if(this[type].length <= 0)
+      return
+
+    logger.log('= ' + type + ' ====\n')
+    this[type].forEach((result) => logResult(type, result))
+    logger.log('\n')
+  })
+}
+
+function logResult(type, result) {
+  var msg = null
+  var d = result.destination
+
+  if(type === 'filtered') {
+    msg = [ `  ${result.filter} prevented request to ${d ? d.url : ' all '} based on ` ]
+  } else {
+    msg = [ `  ${d.method} ${d.url} ${d.contentType}` ]
+    if(type === 'sent')
+      msg.push(' with data')
+    else
+      msg = msg.concat([' failed b/c ', result.error, ' and data' ])
+  }
+  msg.push(result.json)
+
+  logger.log.apply(null, msg)
 }
 
 module.exports = WebhookResults

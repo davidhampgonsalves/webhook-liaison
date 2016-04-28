@@ -7,16 +7,18 @@
 // figure out how to run with offline
 // use standard error message format (stringify with indent)
 //
-var request = require('request')
-var _ = require('underscore')
-var qs = require('qs')
-var jmespath = require('jmespath')
-var validUrl = require('valid-url')
+const request = require('request')
+const _ = require('underscore')
+const qs = require('qs')
+const jmespath = require('jmespath')
+const validUrl = require('valid-url')
 require('json5/lib/require')
 
-var jsonTransmogrifier = require('./json-transmogrifier.js')
-var WebhookResults = require('./webhook-results.js')
-var configs = require('./webhook-transmogrifier.json5')
+const jsonTransmogrifier = require('./json-transmogrifier.js')
+const WebhookResults = require('./webhook-results.js')
+const log = require('./logger.js')
+
+const configs = require('./webhook-transmogrifier.json5')
 
 var CONFIG_DEFAULTS = {
   destinations: [],
@@ -28,6 +30,7 @@ var DESTINATION_CONFIG_DEFAULTS = {
 
 module.exports.buildWebhookRequest = function buildWebhookRequest(e, config) {
   var request = {
+    name: e.configName,
     contentType: e.contentType,
     method: e.method,
   }
@@ -46,7 +49,7 @@ module.exports.buildWebhookRequest = function buildWebhookRequest(e, config) {
   return request
 }
 
-var validOptions = ['url', 'jsonEmbededFormParameter'].concat(
+var validOptions = ['url', 'auth','jsonEmbededFormParameter'].concat(
     Object.keys(DESTINATION_CONFIG_DEFAULTS),
     Object.keys(CONFIG_DEFAULTS),
     Object.keys(jsonTransmogrifier.CONFIG_DEFAULTS))
@@ -81,7 +84,7 @@ module.exports.configFor = function configFor(configName, configs) {
   var config = configs[configName]
 
   if(!config)
-    throw new Error(`configuration for ${configName} not found`)
+    return null
 
   _.defaults(config, CONFIG_DEFAULTS)
   _.defaults(config, jsonTransmogrifier.CONFIG_DEFAULTS)
@@ -96,14 +99,20 @@ module.exports.configFor = function configFor(configName, configs) {
 
 module.exports.process = function process(event, cb, override_configs) {
   var config = exports.configFor(event.configName, override_configs || configs)
+  if(!config) {
+    log.log(`Config for ${event.configName} not found`, event)
+    throw new Error(`config ${event.configName} not found`)
+  }
   var errs = exports.validateConfig(config)
-  //TODO: log errors
+  if(errs.length > 0)
+    log.errors(event.configName, errs)
+
   var webhookRequest = exports.buildWebhookRequest(event, config)
-  var results = new WebhookResults()
+  var results = new WebhookResults(event.configName)
 
   var filter = jsonTransmogrifier.filter(config, webhookRequest.json)
   if(filter) {
-    results.addFiltered(filter, webhookRequest.json)
+    results.addFiltered(null, webhookRequest.json, filter)
     return cb(results)
   }
   var json = jsonTransmogrifier.transmogrify(config, webhookRequest.json)
@@ -111,38 +120,35 @@ module.exports.process = function process(event, cb, override_configs) {
   config.destinations.forEach((d) => {
     filter = jsonTransmogrifier.filter(d, webhookRequest.json)
     if(filter) {
-      results.addFiltered(filter, webhookRequest.json)
-      return results.isDeliveryComplete(config) && cb(results)
+      results.addFiltered(d, webhookRequest.json, filter)
+      return results.isDeliveryComplete(config) ? cb(results) : null
     }
     var jsonForDestination = jsonTransmogrifier.transmogrify(d, json)
 
     exports.deliver(d, jsonForDestination, webhookRequest, (deliveryResults) => {
       results.merge(deliveryResults)
-      return results.isDeliveryComplete(config) && cb(results)
+      return results.isDeliveryComplete(config) ? cb(results) : null
     })
   })
 }
 
 module.exports.deliver = function deliver(destination, json, req, cb) {
-  var results = new WebhookResults()
+  var results = new WebhookResults(req.configName)
   var options = {
     url: destination.url,
     method: destination.method,
   }
 
+  if(destination.auth)
+   options.auto = destination.auth
+
   options[destination.contentType === 'application/x-www-form-urlencoded' ? 'form' : 'json'] = json
   request(options, (err, response, body) => {
     if (err) {
-      results.addDeliveryError(err, destination, json)
+      results.addDeliveryError(destination, json, err)
     } else {
       results.addDeliveryDetails(destination, json)
     }
     return cb(results)
   })
 }
-
-module.exports.logResults = function logResults(results) {
-  // console.log(`successfully sent ${JSON.stringify(transmogrifiedJson)} to ${d.url} response: ${JSON.stringify(response)} body: ${body}`)
-  console.log(results)
-}
-
