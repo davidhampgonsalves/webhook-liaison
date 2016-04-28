@@ -140,11 +140,11 @@ module.exports.deliver = function deliver(destination, json, req, cb) {
   }
 
   if(destination.auth)
-   options.auto = destination.auth
+    options.auth = destination.auth
 
   options[destination.contentType === 'application/json' ? 'json' : 'form'] = json
   request(options, (err, response, body) => {
-    if (!err && response.statusCode == 200) {
+    if (!err && response.statusCode >= 200 && response.statusCode < 300) {
       results.addDeliveryDetails(destination, json)
     } else {
 
