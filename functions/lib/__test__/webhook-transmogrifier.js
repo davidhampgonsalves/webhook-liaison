@@ -9,7 +9,7 @@ var webhookTransmogrifier = require('../webhook-transmogrifier.js')
 //TODO: add tests for
 //  auth
 //  verify no config errors on valid cases
-//
+//  action is array but inside is number or array
 var input = {
   "locations": [
     {"name": "Seattle", "state": "WA"},

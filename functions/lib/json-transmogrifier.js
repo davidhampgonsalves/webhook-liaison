@@ -19,14 +19,17 @@ module.exports.validateConfig = function validateConfig(config) {
 
   const operationTypes = ['filters', 'extractions', 'transformations']
   operationTypes.forEach((operationType) => {
-    var operations = jmespath.search(config, `[[${operationType}], destinations[].${operationType}][]`)
+    var operations = config[operationType]
 
-    _.flatten(operations).forEach((operation) => {
-      debugger
-      if(!_.isArray(operation)) {
-        errs.push(`${operationType} "${operation}" should be an array.`)
-        return
-      }
+    if(!_.isArray(operations)) {
+      errs.push(`${operationType} "${operations}" should be an array.`)
+      return
+    }
+
+    operations.forEach((operation) => {
+      if(typeof(operation) != 'string')
+        errs.push(`$(operationType) contained non-string(${typeof(operation)}) data: ${operation}`)
+
       try {
         jmespath.compile(operation)
       } catch(err) {
