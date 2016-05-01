@@ -18,8 +18,6 @@ const WebhookResults = require('./webhook-results.js')
 const WebhookRequest = require('./webhook-request.js')
 const log = require('./logger.js')
 
-const configs = require('./webhook-transmogrifier.json5')
-
 var CONFIG_DEFAULTS = {
   destinations: [],
 }
@@ -77,7 +75,8 @@ module.exports.configFor = function configFor(configName, configs) {
 }
 
 module.exports.process = function process(event, cb, override_configs) {
-  var configs = override_configs || configs
+  var configs = override_configs || require('./webhook-transmogrifier.json5')
+
   var configName = event.configName
   var config = exports.configFor(configName, configs)
 
