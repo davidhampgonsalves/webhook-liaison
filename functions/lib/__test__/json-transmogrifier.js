@@ -23,7 +23,7 @@ test('single transformation', function (t) {
   const config = webhookTransmogrifier.configFor('singleTransformation', configs)
   const output = jsonTransmogrifier.transmogrify(config, input, input)
 
-  t.equal(output["message"], 'you live in Seattle', 'single transformation concat')
+  t.equal(output["message"], 'the city of Seattle', 'single transformation concat')
   t.equal(output["locations"].length, 4, 'transformation maintains existing content')
 })
 
@@ -73,12 +73,20 @@ test('single filter pass', function (t) {
   t.ok(!filter, 'should not be filtered')
 })
 
+test('bad data type should return errors', function (t) {
+  t.plan(1);
+
+  const config = { filters: [1], extractions: ["asdf"], transformations: []}
+  const errs = jsonTransmogrifier.validateConfig(config)
+
+  t.ok(errs[0].match(/number/), 'should have errors re: bad data type')
+})
+
 test('bad jmespath should return errors', function (t) {
   t.plan(1);
 
-  const config = { filters: [1], extractions: [], transformations: []}
+  const config = { filters: [], extractions: [{asdf: "safd`", fdsa: "asdf"}], transformations: []}
   const errs = jsonTransmogrifier.validateConfig(config)
 
-  t.equals(errs.length, 2, 'should have errors re: invalid jmespath and bad data type')
+  t.ok(errs[0].match(/asdf/), 'should have errors re: bad data type')
 })
-

@@ -20,23 +20,39 @@ module.exports.validateConfig = function validateConfig(config) {
     var operations = config[operationType]
 
     if(!_.isArray(operations)) {
-      errs.push(`${operationType} "${operations}" should be an array.`)
+      errs.push(`${operationType} "${operations}" should be an array not ${typeof(operations)}.`)
       return
     }
 
     operations.forEach((operation) => {
-      if(typeof(operation) !== 'string')
-        errs.push(`$(operationType) contains non-string(${typeof(operation)}) data: ${operation}`)
+      const properType = operationType === 'filters' ? 'string' : 'object'
+      if(typeof(operation) !== properType) {
+        errs.push(`${operationType} contains ${typeof(operation)} but should be ${properType} > ${operation}`)
+        return
+      }
 
-      try {
-        jmespath.compile(operation)
-      } catch(err) {
-        errs.push(`${operationType} "${operation}" is not valid JMESPath.`)
+      if(operationType === 'filters') {
+        const err = validateJmesPath('filters', operation)
+        err && errs.push(err)
+      } else {
+        _.each(operation, (path, key) => {
+          const err = validateJmesPath(operationType, path, key)
+          err && errs.push(err)
+        })
       }
     })
   })
 
   return errs
+}
+
+function validateJmesPath(operationType, path, element) {
+  try {
+    jmespath.compile(path)
+  } catch(err) {
+    return `${operationType} "${log.frmt(path)}"${element ? ' for ' + element : ''} caused error: ${log.frmt(err)}.`
+  }
+  return
 }
 
 module.exports.filter = function filter(config, input) {
@@ -73,19 +89,18 @@ function extract(config, input) {
   return transmogrify(config, "extractions", input, {})
 }
 
-function transmogrify(config, action, input, output) {
-  if(config[action].length === 0)
+function transmogrify(config, actionName, input, output) {
+  if(config[actionName].length === 0)
     return input
 
-  config[action].forEach((expression) => {
-    try {
-      _.extend(output, jmespath.search(input, expression))
-    } catch(err) {
-      throw new Error(`${err} occured for ${action}:
-        ${log.frmt(expression)}
-        for input:
-        ${log.frmt(input)}`)
-    }
+  config[actionName].forEach((action) => {
+    _.each(action, (expression, key) => {
+      try {
+        output[key] = jmespath.search(input, expression)
+      } catch(err) {
+        throw new Error(`${err} occured durring ${action} ${log.frmt(expression)} for input: ${log.frmt(input)}`)
+      }
+    })
   })
 
   return output

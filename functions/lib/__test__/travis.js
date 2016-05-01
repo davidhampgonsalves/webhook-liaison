@@ -2,20 +2,19 @@
 
 const test = require('tape');
 const _ = require('underscore')
-require('json5/lib/require')
 
 const webhookTransmogrifier = require('..').webhookTransmogrifier
 
 const configs = {
   "travis-ci": {
-    "jsonEmbededFormParameter": "payload",
+    jsonEmbededFormParameter: "payload",
     destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [
       "branch == `master` || branch == `important-branch`",
       "status_message == `Fixed` || status_message == `Broken`",
     ],
     extractions: [
-      "{ message: join(' ', ['Tests are', status_message, 'on', branch, 'b/c:', message]) }",
+      { message: "join(' ', ['Tests are', status_message, 'on', branch, 'b/c:', message])" },
     ]
   }
 }
@@ -33,7 +32,6 @@ test('expand uri encoded json form parameter for travis', function (t) {
   }
 
   webhookTransmogrifier.process(eventJson, function(results) {
-    debugger
     t.equal(results.sent.length, 1, 'should be sent')
     t.same(results.sent[0].json, { message: "Tests are Fixed on master b/c: the commit message" }, 'should be expected message')
   }, configs)

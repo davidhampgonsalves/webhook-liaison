@@ -6,17 +6,18 @@
   singleTransformation: {
     destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [],
-    transformations: [
-      "{ message: join(' ', ['you live in', locations[0].name]), city: 'asdf' }"
-    ]
+    transformations: [{
+        message: "join(' ', ['the city of', locations[0].name])",
+        city: "asdf",
+    }]
   },
 
   multiTransformation: {
     destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [],
     transformations: [
-      "{ message: join(' ', ['you live in', locations[0].name]) }",
-      "{ locations: '' }",
+      { message: "join(' ', ['you live in', locations[0].name])" },
+      { locations: "''" },
     ]
   },
 
@@ -46,14 +47,14 @@
     destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [],
     extractions: [
-      "{ message: join(' ', ['you live in', locations[0].name]), city: {} }",
-      "{ city: locations[0].name }",
+      { message: "join(' ', ['you live in', locations[0].name])", city: "{}" },
+      { city: "locations[0].name" },
     ]
   },
 
   emptyExtraction: {
     destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
-    extractions: ["''"],
+    extractions: [{}],
   },
 
   multiDestinations: {
@@ -72,8 +73,8 @@
     ],
     filters: [],
     extractions: [
-      "{ message: join(' ', ['you live in', locations[0].name]) }",
-      "{ city: locations[0].name }",
+      { message: "join(' ', ['you live in', locations[0].name])" },
+      { city: "locations[0].name" },
     ]
   },
 
@@ -83,14 +84,14 @@
         url: "http://jsonplaceholder.typicode.com/posts/1",
         method: "GET",
         filters: ["locations[0].name == 'Seattle'"],
-        transformations: ["{ emailTo: 'not-david@seattle.com' }"],
-        extractions: ["{ index: `2`, importantState: someStates[0], emailAddress: emailTo }"],
+        transformations: [{ emailTo: "'not-david@seattle.com'" }],
+        extractions: [{ index: "`2`", importantState: "someStates[0]", emailAddress: "emailTo" }],
       },
       {
         url: "http://jsonplaceholder.typicode.com/posts/1",
         method: "GET",
         filters: ["locations[0].name == 'Seattle'"],
-        transformations: ["{ index: `1`, emailTo: 'david@seattle.com' }"],
+        transformations: [{ index: "`1`", emailTo: "'david@seattle.com'" }],
       },
       {
         url: "http://jsonplaceholder.typicode.com/posts/2",
@@ -101,13 +102,13 @@
     ],
     filters: ["locations[3]"],
     transformations: [
-      "{ someCities: locations[1:3], cityCount: length(locations) }",
-      "{ keys: keys(@) }"
+      { someCities: "locations[1:3]", cityCount: "length(locations)" },
+      { keys: "keys(@)" }
     ],
     extractions: [
-      "{ message: join(' ', ['you live in', locations[0].name]) }",
-      "{ someStates: someCities[].state }",
-      "{ k: keys }",
+      { message: "join(' ', ['you live in', locations[0].name])" },
+      { someStates: "someCities[].state" },
+      { k: "keys" },
     ]
   },
 
