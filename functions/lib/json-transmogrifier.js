@@ -25,7 +25,7 @@ module.exports.validateConfig = function validateConfig(config) {
     }
 
     operations.forEach((operation) => {
-      if(typeof(operation) != 'string')
+      if(typeof(operation) !== 'string')
         errs.push(`$(operationType) contains non-string(${typeof(operation)}) data: ${operation}`)
 
       try {

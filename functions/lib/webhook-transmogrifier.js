@@ -42,8 +42,8 @@ module.exports.validateConfig = function validateConfig(config) {
         invalids.push(d.url)
       return invalids
     }, [])
-    if(invalidUrls.length > 0)
-      errs.push(`invalid url(s) ${JSON.stringify(invalidUrls)}.`)
+
+    invalidUrls.length > 0 && errs.push(`invalid url(s) ${log.frmt(invalidUrls)}.`)
   }
 
   errs = errs.concat(jsonTransmogrifier.validateConfig(config),
@@ -51,8 +51,8 @@ module.exports.validateConfig = function validateConfig(config) {
 
   var options = Object.keys(config).concat(config.destinations.reduce((o, d) => o.concat(Object.keys(d)), []))
   var invalidOptions = _.difference(_.flatten(options), validOptions)
-  if(invalidOptions.length > 0)
-      errs.push(`invalid configuration option(s) ${JSON.stringify(invalidOptions)}.`)
+
+  invalidOptions.length > 0 && errs.push(`invalid configuration option(s) ${log.frmt(invalidOptions)}.`)
 
   return errs
 }
