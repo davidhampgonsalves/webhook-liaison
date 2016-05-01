@@ -1,21 +1,21 @@
 'use strict'
 
 //TODO:
-// error if unknown config key was found
-// run each operation against empty input to verify its valid jmespath
-//
 // figure out how to run with offline
-// use standard error message format (stringify with indent)
+// result.log should be single console.log
+// tranformation errors should show in results log
+//
+// shorten url function path?
 //
 const request = require('request')
 const _ = require('underscore')
-const qs = require('qs')
 const jmespath = require('jmespath')
 const validUrl = require('valid-url')
 require('json5/lib/require')
 
 const jsonTransmogrifier = require('./json-transmogrifier.js')
 const WebhookResults = require('./webhook-results.js')
+const WebhookRequest = require('./webhook-request.js')
 const log = require('./logger.js')
 
 const configs = require('./webhook-transmogrifier.json5')
@@ -26,27 +26,6 @@ var CONFIG_DEFAULTS = {
 var DESTINATION_CONFIG_DEFAULTS = {
   method: 'POST',
   contentType: 'application/json',
-}
-
-module.exports.buildWebhookRequest = function buildWebhookRequest(e, config) {
-  var request = {
-    name: e.configName,
-    contentType: e.contentType,
-    method: e.method,
-  }
-
-  try {
-    if(e.contentType === 'application/x-www-form-urlencoded') {
-      request.json = qs.parse(e.body)
-      if(config['jsonEmbededFormParameter'])
-        request.json = JSON.parse(decodeURIComponent(request.json[config['jsonEmbededFormParameter']]))
-    } else
-      request.json = e.json
-  } catch(err) {
-    throw new Error(`error parsing ${e.contentType} request for ${e.configName}: ${JSON.stringify(request.json, null, 2)} using config ${JSON.stringify(config, null, 2)} error message ${err}`)
-  }
-
-  return request
 }
 
 var validOptions = ['url', 'auth','jsonEmbededFormParameter'].concat(
@@ -98,17 +77,23 @@ module.exports.configFor = function configFor(configName, configs) {
 }
 
 module.exports.process = function process(event, cb, override_configs) {
-  var config = exports.configFor(event.configName, override_configs || configs)
-  if(!config) {
-    log.log(`Config for ${event.configName} not found`, event)
-    throw new Error(`config ${event.configName} not found`)
-  }
-  var errs = exports.validateConfig(config)
-  if(errs.length > 0)
-    log.errors(event.configName, errs)
+  var configs = override_configs || configs
+  var configName = event.configName
+  var config = exports.configFor(configName, configs)
 
-  var webhookRequest = exports.buildWebhookRequest(event, config)
-  var results = new WebhookResults(event.configName)
+  if(!config) {
+    log.errors([`Config for ${configName} not found in current options; `, _.keys(configs), ' for ', event])
+    return
+  }
+
+  var errs = exports.validateConfig(config)
+  if(errs.length > 0) {
+    log.errorsFor(configName, errs)
+    return
+  }
+
+  var webhookRequest = new WebhookRequest(event, config)
+  var results = new WebhookResults(configName)
 
   var filter = jsonTransmogrifier.filter(config, webhookRequest.json)
   if(filter) {
@@ -149,13 +134,12 @@ module.exports.deliver = function deliver(destination, json, req, cb) {
     formatOption = 'json'
 
   options[formatOption] = json
-  request(options, (err, response, body) => {
-    if (!err && response.statusCode >= 200 && response.statusCode < 300) {
+  request(options, (err, res, body) => {
+    if(err || (res.statusCode < 200 && res.statusCode >= 300))
+      results.addDeliveryError(destination, json, err ? err : { statusCode: res.statusCode, response: body })
+    else
       results.addDeliveryDetails(destination, json)
-    } else {
 
-      results.addDeliveryError(destination, json, err ? err : `${response.statusCode}: ${body}`)
-    }
     return cb(results)
   })
 }

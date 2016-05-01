@@ -41,32 +41,32 @@ WebhookResults.prototype.addResult = function addResult(type, destination, json,
 }
 
 WebhookResults.prototype.log = function log() {
-  logger.log(this.configName + ' request results\n')
-  RESULT_TYPES.forEach((type) => {
-    if(this[type].length <= 0)
-      return
-
-    logger.log('= ' + type + ' ====\n')
-    this[type].forEach((result) => logResult(type, result))
-    logger.log('\n')
-  })
+  var msgs = [`${this.configName}  request results`]
+  msgs = RESULT_TYPES.reduce((msgs, type) => msgs.concat(this.msgForType(type)), msgs)
+  logger.logAll(msgs)
 }
 
-function logResult(type, result) {
-  var msg = null
-  var d = result.destination
+WebhookResults.prototype.msgForType = function msgForType(type) {
+  if(this[type].length <= 0)
+    return []
 
-  if(type === 'filtered') {
-    msg = [ `  ${result.filter} prevented request to ${d ? d.url : ' all '} based on ` ]
-  } else {
-    msg = [ `  ${d.method} ${d.url} ${d.contentType}` ]
-    if(type !== 'sent')
-      msg = msg.concat([' failed b/c ', result.error ])
-    msg.push(' with data')
-  }
-  msg.push(result.json)
+  var msg = ['', `= ${type}  ====\n`]
+  this[type].forEach((result) => {
+    var d = result.destination
+    var line = ['  ']
+    if(type === 'filtered') {
+      line.push(`${result.filter} prevented request to ${d ? d.url : ' all '} based on `)
+    } else {
+      line.push(`${d.method} ${d.url} ${d.contentType}`)
+      if(type === 'errors')
+        line.push(' failed b/c ', logger.frmt(result.error))
+      line.push(' with data')
+    }
+    line.push(logger.frmt(result.json))
+    msg.push(line.join(''))
+  })
 
-  logger.log.apply(null, msg)
+  return msg
 }
 
 module.exports = WebhookResults

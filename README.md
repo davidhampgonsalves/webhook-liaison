@@ -9,6 +9,8 @@
 * All filters & transformations are powered by the super powerful [JMESPath](https://jmespath.org).
 * Single Webhook can trigger multiple outbound Webhooks each with its own filters & transformations.
 * Supports `application/x-www-form-urlencoded` & `application/json` content-types for inbound/outbound requests.
+* GET method requests with inbound data payload flattened to query string paramters.
+* HTTP authentication.
 
 ##Examples
 ###Github -> Slack
@@ -59,7 +61,11 @@ __ses [Serverless Offline](https://github.com/dherault/serverless-offline) which
 Configuration file support [JSON5](https://github.com/json5/json5) which allows a cleaner syntax + comments.
 
 ```
+
 ```
+
+##Non Webhook Enabled
+All HTTP methods are supported + authentication. Form & JSON content types, GET method and query string parameters.
 
 ##Common Issues
 `Unable to import module '_serverless_handler'` : Happens if you `sls dash deploy` in directory other than app root.

@@ -20,8 +20,8 @@ test('expand uri encoded json form parameter for travis', function (t) {
   }
 
   webhookTransmogrifier.process(eventJson, function(results) {
+    results.log()
     t.equal(results.sent.length, 1, 'should be sent')
-    debugger
     t.same(results.sent[0].json, { message: "Tests are Fixed on master b/c: the commit message" }, 'should be expected message')
   }, configs)
 })
