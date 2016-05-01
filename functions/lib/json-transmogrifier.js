@@ -12,8 +12,6 @@ module.exports.CONFIG_DEFAULTS = {
   extractions: [],
 }
 
-//TODO: validate json is json
-
 module.exports.validateConfig = function validateConfig(config) {
   const errs = []
 
@@ -28,12 +26,12 @@ module.exports.validateConfig = function validateConfig(config) {
 
     operations.forEach((operation) => {
       if(typeof(operation) != 'string')
-        errs.push(`$(operationType) contained non-string(${typeof(operation)}) data: ${operation}`)
+        errs.push(`$(operationType) contains non-string(${typeof(operation)}) data: ${operation}`)
 
       try {
         jmespath.compile(operation)
       } catch(err) {
-        errs.push(`${operationType} "${operation}" was not a valid JMESPath.`)
+        errs.push(`${operationType} "${operation}" is not valid JMESPath.`)
       }
     })
   })

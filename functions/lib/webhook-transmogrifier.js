@@ -110,15 +110,15 @@ module.exports.process = function process(event, cb, override_configs) {
     }
     var jsonForDestination = jsonTransmogrifier.transmogrify(d, json)
 
-    exports.deliver(d, jsonForDestination, webhookRequest, (deliveryResults) => {
+    exports.deliver(d, jsonForDestination, configName, (deliveryResults) => {
       results.merge(deliveryResults)
       return results.isDeliveryComplete(config) ? cb(results) : null
     })
   })
 }
 
-module.exports.deliver = function deliver(destination, json, req, cb) {
-  var results = new WebhookResults(req.configName)
+module.exports.deliver = function deliver(destination, json, configName, cb) {
+  var results = new WebhookResults(configName)
   var options = {
     url: destination.url,
     method: destination.method,
@@ -135,11 +135,13 @@ module.exports.deliver = function deliver(destination, json, req, cb) {
 
   options[formatOption] = json
   request(options, (err, res, body) => {
-    if(err || (res.statusCode < 200 && res.statusCode >= 300))
-      results.addDeliveryError(destination, json, err ? err : { statusCode: res.statusCode, response: body })
-    else
-      results.addDeliveryDetails(destination, json)
+    if(err || res.statusCode < 200 || res.statusCode >= 300) {
+      const details = err ? { response: err.message } : { statusCode: res.statusCode, response: body }
+      results.addDeliveryError(destination, json, details)
+    } else
+      results.addDeliveryDetails(destination, json, options)
 
     return cb(results)
   })
+  return options
 }

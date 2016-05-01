@@ -1,10 +1,10 @@
 {
   defaults: {
-    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
+    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
   },
 
   singleTransformation: {
-    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
+    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [],
     transformations: [
       "{ message: join(' ', ['you live in', locations[0].name]), city: 'asdf' }"
@@ -12,7 +12,7 @@
   },
 
   multiTransformation: {
-    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
+    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [],
     transformations: [
       "{ message: join(' ', ['you live in', locations[0].name]) }",
@@ -21,14 +21,14 @@
   },
 
   singleFilter: {
-    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
+    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [
       "location[0].name == `asdf`",
     ]
   },
 
   multiFilter: {
-    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
+    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [
       "locations[3]",
       "location[0].name == `asdf`",
@@ -36,14 +36,14 @@
   },
 
   singleFilterPass: {
-    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
+    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [
       "locations[3]",
     ]
   },
 
   singleExtraction: {
-    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts/1" }],
+    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
     filters: [],
     extractions: [
       "{ message: join(' ', ['you live in', locations[0].name]), city: {} }",
@@ -51,15 +51,20 @@
     ]
   },
 
+  emptyExtraction: {
+    destinations: [{ url: "http://jsonplaceholder.typicode.com/posts" }],
+    extractions: ["''"],
+  },
+
   multiDestinations: {
     destinations: [
       {
-        url: "http://jsonplaceholder.typicode.com/posts/1",
+        url: "http://jsonplaceholder.typicode.com/posts",
         contentType: "application/json",
         filters: []
       },
       {
-        url: "http://jsonplaceholder.typicode.com/posts/1",
+        url: "http://jsonplaceholder.typicode.com/posts",
         method: "POST",
         contentType: "application/x-www-form-urlencoded",
         filters: []

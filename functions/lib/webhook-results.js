@@ -29,11 +29,11 @@ WebhookResults.prototype.addFiltered = function addFiltered(destination, json, f
 }
 
 WebhookResults.prototype.addDeliveryError = function addDeliveryError(destination, json, error) {
-  this.addResult('errors', destination, json, { error: error })
+  this.addResult('errors', destination, json, error)
 }
 
-WebhookResults.prototype.addDeliveryDetails = function addDeliveryDetails(destination, json) {
-  this.addResult('sent', destination, json)
+WebhookResults.prototype.addDeliveryDetails = function addDeliveryDetails(destination, json, options) {
+  this.addResult('sent', destination, json, { requestOptions: options})
 }
 
 WebhookResults.prototype.addResult = function addResult(type, destination, json, result) {
@@ -50,7 +50,7 @@ WebhookResults.prototype.msgForType = function msgForType(type) {
   if(this[type].length <= 0)
     return []
 
-  var msg = ['', `= ${type}  ====\n`]
+  var msg = ['', `= ${type}  ====`]
   this[type].forEach((result) => {
     var d = result.destination
     var line = ['  ']
@@ -60,9 +60,8 @@ WebhookResults.prototype.msgForType = function msgForType(type) {
       line.push(`${d.method} ${d.url} ${d.contentType}`)
       if(type === 'errors')
         line.push(' failed b/c ', logger.frmt(result.error))
-      line.push(' with data')
+      line.push(' with data ')
     }
-    line.push(logger.frmt(result.json))
     msg.push(line.join(''))
   })
 
