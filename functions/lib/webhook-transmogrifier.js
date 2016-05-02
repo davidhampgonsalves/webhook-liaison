@@ -2,8 +2,7 @@
 
 //TODO:
 // figure out how to run with offline
-// result.log should be single console.log
-// tranformation errors should show in results log
+// tranformation errors should show in results log?
 //
 // shorten url function path?
 //
