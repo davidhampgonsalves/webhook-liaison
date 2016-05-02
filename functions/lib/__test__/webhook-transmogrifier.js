@@ -5,6 +5,7 @@ const _ = require('underscore')
 require('json5/lib/require')
 
 const webhookTransmogrifier = require('../webhook-transmogrifier.js')
+const webhookConfig = require('../webhook-config.js')
 
 // TODO: add tests for
 //   keys that don't exist
@@ -23,8 +24,8 @@ test('manditory properties', function (t) {
   t.plan(2)
   const configs = { empty: {} }
 
-  const config = webhookTransmogrifier.configFor('empty', configs)
-  const errs = webhookTransmogrifier.validateConfig(config)
+  const config = webhookConfig.configFor('empty', configs)
+  const errs = webhookConfig.validateConfig(config)
   t.equal(errs.length, 1, 'should have error')
   t.ok(errs[0].match(/destination/), 'should be missing required options')
 })
@@ -34,8 +35,8 @@ test('extra / invalid config keys', function (t) {
 
   const configs = { extraKeys: { destinations: [{ foo: "bar", url: "http://url.com" }], whomp: "whomp" } }
 
-  const config = webhookTransmogrifier.configFor('extraKeys', configs)
-  const errs = webhookTransmogrifier.validateConfig(config)
+  const config = webhookConfig.configFor('extraKeys', configs)
+  const errs = webhookConfig.validateConfig(config)
   t.equal(errs.length, 1, 'should have error')
   t.ok(errs[0].match(/whomp/) && errs[0].match(/foo/), 'should be invalid option')
 })
@@ -45,8 +46,8 @@ test('operations are wrong types', function (t) {
 
   const configs = { operationsWrongTypes: { destinations: [{ url: "http://url.com", extractions: "" }], filters: 1 }}
 
-  const config = webhookTransmogrifier.configFor('operationsWrongTypes', configs)
-  const errs = webhookTransmogrifier.validateConfig(config)
+  const config = webhookConfig.configFor('operationsWrongTypes', configs)
+  const errs = webhookConfig.validateConfig(config)
 
   t.equal(errs.length, 2, 'should have error')
   t.ok(errs[0].match(/array/), 'should have type error')
@@ -58,8 +59,8 @@ test('invalid urls', function (t) {
 
   const configs = { invalidUrls: { destinations: [{ url: "ht" }, { url: "www.wrong.com"}] }}
 
-  const config = webhookTransmogrifier.configFor('invalidUrls', configs)
-  const errs = webhookTransmogrifier.validateConfig(config)
+  const config = webhookConfig.configFor('invalidUrls', configs)
+  const errs = webhookConfig.validateConfig(config)
 
   t.equal(errs.length, 1, 'should have error')
   t.ok(errs[0].match(/wrong/), 'should have url error')
@@ -68,7 +69,7 @@ test('invalid urls', function (t) {
 test('config defaults', function (t) {
   t.plan(3)
 
-  const config = webhookTransmogrifier.configFor('defaults', configs)
+  const config = webhookConfig.configFor('defaults', configs)
 
   t.ok(_.isArray(config.filters), 'filters default should be used')
   t.ok(_.isArray(config.transformations), 'transformations default should be used')

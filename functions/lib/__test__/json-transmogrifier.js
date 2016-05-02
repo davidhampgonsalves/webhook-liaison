@@ -6,6 +6,7 @@ require('json5/lib/require')
 
 const webhookTransmogrifier = require('..').webhookTransmogrifier
 const jsonTransmogrifier = require('..').jsonTransmogrifier
+const webhookConfig = require('../webhook-config.js')
 
 const input = {
   "locations": [
@@ -20,7 +21,7 @@ const configs = require('./test-configs.json5')
 test('single transformation', function (t) {
   t.plan(2);
 
-  const config = webhookTransmogrifier.configFor('singleTransformation', configs)
+  const config = webhookConfig.configFor('singleTransformation', configs)
   const output = jsonTransmogrifier.transmogrify(config, input, input)
 
   t.equal(output["message"], 'the city of Seattle', 'single transformation concat')
@@ -30,7 +31,7 @@ test('single transformation', function (t) {
 test('empty extraction clears', function (t) {
   t.plan(1);
 
-  const config = webhookTransmogrifier.configFor('emptyExtraction', configs)
+  const config = webhookConfig.configFor('emptyExtraction', configs)
   const output = jsonTransmogrifier.transmogrify(config, input, input)
 
   t.deepEqual(output, {}, 'empty extraction clears')
@@ -39,7 +40,7 @@ test('empty extraction clears', function (t) {
 test('multi transformation', function (t) {
   t.plan(2);
 
-  const config = webhookTransmogrifier.configFor('multiTransformation', configs)
+  const config = webhookConfig.configFor('multiTransformation', configs)
   const output = jsonTransmogrifier.transmogrify(config, input, input)
 
   t.equal(output["message"], 'you live in Seattle', 'single transformation concat')
@@ -49,7 +50,7 @@ test('multi transformation', function (t) {
 test('single filter', function (t) {
   t.plan(1);
 
-  const config = webhookTransmogrifier.configFor('singleFilter', configs)
+  const config = webhookConfig.configFor('singleFilter', configs)
   const filter = jsonTransmogrifier.filter(config, input)
 
   t.ok(!!filter, 'should be filtered')
@@ -58,7 +59,7 @@ test('single filter', function (t) {
 test('single filter', function (t) {
   t.plan(1);
 
-  const config = webhookTransmogrifier.configFor('multiFilter', configs)
+  const config = webhookConfig.configFor('multiFilter', configs)
   const filter = jsonTransmogrifier.filter(config, input)
 
   t.ok(!!filter, 'should be filtered')
@@ -67,7 +68,7 @@ test('single filter', function (t) {
 test('single filter pass', function (t) {
   t.plan(1);
 
-  const config = webhookTransmogrifier.configFor('singleFilterPass', configs)
+  const config = webhookConfig.configFor('singleFilterPass', configs)
   const filter = jsonTransmogrifier.filter(config, input)
 
   t.ok(!filter, 'should not be filtered')
