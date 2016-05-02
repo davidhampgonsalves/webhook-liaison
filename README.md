@@ -6,10 +6,10 @@
 
 ##Features
 * Runs on [AWS Lambda](https://aws.amazon.com/lambda/) using [Serverless Framework](https://github.com/serverless/serverless) so its low maintenence and probably free(< 1 million requests a month).
-* All filters & transformations are powered by the super powerful [JMESPath](https://jmespath.org).
+* All filters & transformations are powered by the super powerful and nearly ubiquitous [JMESPath](https://jmespath.org).
 * Single Webhook can trigger multiple outbound Webhooks each with its own filters & transformations.
 * Supports `application/x-www-form-urlencoded` & `application/json` content-types for inbound/outbound requests.
-* GET method requests with inbound data payload flattened to query string paramters.
+* Handles GET requests & query string paramters.
 * HTTP authentication.
 
 ##Examples
@@ -45,18 +45,18 @@ Then [configure](https://docs.travis-ci.com/user/notifications/#Webhook-notifica
 
 ###Papertrail -> SMS (Twillio)
 
-###IFTTT -> _______
+###IFTTT -> ________
 
 
 ##Installation
 ###Run Locally
 `npm install && npm start`
-__ses [Serverless Offline](https://github.com/dherault/serverless-offline) which sometimes doesn't like `application/x-www-form-urlencoded`.__
+__You can curl requests to test `curl -X POST -d '{"json": "data"}' http://localhost:3000/config-name`
 
 ##Deploy to AWS Lambda
-* Install the Serverless Framework.
+* Install the [Serverless Framework](https://github.com/serverless/serverless/).
 * Clone this repo.
-* Modify one of the example configs, found in: [`functions/lib/webhook-transmogrifier.json`](functions/lib/webhook-transmografier.json5).
+* Modify one of the example configs, found in: [`functions/lib/webhook-transmogrifier.json5`](functions/lib/webhook-transmografier.json5).
 * Deploy `sls dash deploy`.
 
 ##Configuration Options

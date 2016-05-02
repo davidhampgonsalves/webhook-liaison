@@ -1,11 +1,6 @@
 'use strict'
 
-//TODO:
-// figure out how to run with offline
-// tranformation errors should show in results log?
-//
-// shorten url function path?
-//
+//TODO: tranformation errors should show in results log?
 const request = require('request')
 const _ = require('underscore')
 const jmespath = require('jmespath')
@@ -80,7 +75,7 @@ module.exports.process = function process(event, cb, override_configs) {
   var config = exports.configFor(configName, configs)
 
   if(!config) {
-    log.errors([`Config for ${configName} not found in current options; `, _.keys(configs), ' for ', event])
+    log.errors([`Config for ${configName} not found. Availiable configs: ${_.keys(configs)}.`])
     return
   }
 

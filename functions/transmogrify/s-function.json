@@ -22,7 +22,7 @@
   },
   "endpoints": [
     {
-      "path": "transmogrify/{config}",
+      "path": "{config}",
       "method": "POST",
       "type": "AWS",
       "authorizationType": "none",
