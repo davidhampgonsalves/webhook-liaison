@@ -5,10 +5,15 @@ engines:
     config:
       languages:
       - javascript
+    exclude_fingerprints:
+    - bccb5d23ea2a36d56bd9e954b911448b
+    - 63d9c7ee27f74a0a652ee7297f825138
   eslint:
     enabled: true
     config:
       config: .eslintrc
+    exclude_fingerprints:
+    - 72ccfd50c20651ff2dbf350577a84b7b
   fixme:
     enabled: true
 ratings:
