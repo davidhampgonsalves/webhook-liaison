@@ -45,6 +45,8 @@ Then [configure](https://docs.travis-ci.com/user/notifications/#Webhook-notifica
 
 ###Papertrail -> SMS (Twillio)
 
+###IFTTT -> _______
+
 
 ##Installation
 ###Run Locally

@@ -43,7 +43,7 @@ WebhookResults.prototype.addResult = function addResult(type, destination, json,
 WebhookResults.prototype.log = function log() {
   var msgs = [`${this.configName}  request results`]
   msgs = RESULT_TYPES.reduce((msgs, type) => msgs.concat(this.msgForType(type)), msgs)
-  logger.logAll(msgs)
+  return logger.logAll(msgs)
 }
 
 WebhookResults.prototype.msgForType = function msgForType(type) {
