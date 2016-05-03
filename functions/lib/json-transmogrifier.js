@@ -33,11 +33,13 @@ module.exports.validateConfig = function validateConfig(config) {
 
       if(operationType === 'filters') {
         const err = validateJmesPath('filters', operation)
-        err && errs.push(err)
+        if(err)
+          errs.push(err)
       } else {
         _.each(operation, (path, key) => {
           const err = validateJmesPath(operationType, path, key)
-          err && errs.push(err)
+          if(err)
+            errs.push(err)
         })
       }
     })

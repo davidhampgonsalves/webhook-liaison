@@ -1,5 +1,6 @@
 # webhook-transmogrifier
 [![Code Climate](https://codeclimate.com/github/davidhampgonsalves/webhook-transmogrifier/badges/gpa.svg)](https://codeclimate.com/github/davidhampgonsalves/webhook-transmogrifier)
+[![Test Coverage](https://codeclimate.com/github/davidhampgonsalves/webhook-transmogrifier/badges/coverage.svg)](https://codeclimate.com/github/davidhampgonsalves/webhook-transmogrifier/coverage)
 [![CircleCi](https://circleci.com/gh/davidhampgonsalves/webhook-transmogrifier.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/davidhampgonsalves/webhook-transmogrifier)
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 [![MIT license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://en.wikipedia.org/wiki/MIT_License)

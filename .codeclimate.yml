@@ -8,6 +8,7 @@ engines:
     exclude_fingerprints:
     - bccb5d23ea2a36d56bd9e954b911448b
     - 63d9c7ee27f74a0a652ee7297f825138
+    - 1917eb6bb7068e16dffa208dbbd76b9a
   eslint:
     enabled: true
     config:

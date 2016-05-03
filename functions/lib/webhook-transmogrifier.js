@@ -1,6 +1,5 @@
 'use strict'
 
-//TODO: tranformation errors should show in results log?
 const request = require('request')
 const _ = require('underscore')
 const jmespath = require('jmespath')
