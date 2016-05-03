@@ -16,22 +16,18 @@ module.exports.process = function process(event, cb, override_configs) {
   var configs = override_configs || require('./webhook-transmogrifier.json5')
 
   var configName = event.configName
+  var results = new WebhookResults(configName)
   var config = webhookConfig.configFor(configName, configs)
 
-  if(!config) {
-    log.errors([`Config for ${configName} not found. Availiable configs: ${_.keys(configs)}.`])
-    return
-  }
+  if(!config)
+    results.addErrors([`Config for ${configName} not found. Availiable configs: ${_.keys(configs)}.`])
+  else
+    results.addErrors(webhookConfig.validateConfig(config))
 
-  var errs = webhookConfig.validateConfig(config)
-  if(errs.length > 0) {
-    log.errorsFor(configName, errs)
-    return
-  }
+  if(results.isDeliveryComplete(config))
+    return cb(results)
 
   var webhookRequest = new WebhookRequest(event, config)
-  var results = new WebhookResults(configName)
-
   var filter = jsonTransmogrifier.filter(config, webhookRequest.json)
   if(filter) {
     results.addFiltered(null, webhookRequest.json, filter)

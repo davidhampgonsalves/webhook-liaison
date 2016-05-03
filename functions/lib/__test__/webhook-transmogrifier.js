@@ -76,6 +76,22 @@ test('config defaults', function (t) {
   t.ok(_.isArray(config.extractions), 'extractions default should be used')
 })
 
+
+test('missing config', function (t) {
+  t.plan(3)
+
+  const jsonEvent = {
+    configName: 'missingConfig',
+    method: "Post",
+    json: input,
+  }
+  webhookTransmogrifier.process(jsonEvent, (results) => {
+    t.equal(results.sent.length, 0, 'should not be sent')
+    t.equal(results.errors.length, 1, 'should have errors')
+    t.ok(results.log().match(/missing/), 'should have missing config log msg')
+  }, configs)
+})
+
 test('multi destination transmogrify webhook', function (t) {
   t.plan(4)
 
@@ -86,9 +102,23 @@ test('multi destination transmogrify webhook', function (t) {
   }
   webhookTransmogrifier.process(jsonEvent, (results) => {
     t.equal(results.sent.length, 2, 'should be sent')
-    t.equal(results.errors.length, 0, 'should not have errors')
+    t.equal(results.deliveryErrors.length, 0, 'should not have errors')
     t.same(results.sent[0].json, { city: 'Seattle', message: 'you live in Seattle' }, 'should be location')
     t.same(results.sent[1].json, { city: 'Seattle', message: 'you live in Seattle' }, 'should be location')
+  }, configs)
+})
+
+test('transmogrify webhook with single filter', function (t) {
+  t.plan(2)
+
+  const jsonEvent = {
+    configName: 'singleFilter',
+    method: "Post",
+    json: input,
+  }
+  webhookTransmogrifier.process(jsonEvent, (results) => {
+    t.equal(results.filtered.length, 1, 'should be filtered')
+    t.equal(results.sent.length, 0, 'should not be sent')
   }, configs)
 })
 
@@ -120,7 +150,7 @@ test('destination with bad host', function (t) {
   }
   const configs = { badHost: { destinations: [ { url: "http://asdlfwpierasdflja.com" } ] }}
   webhookTransmogrifier.process(jsonEvent, (results) => {
-    t.ok(results.errors[0].response.match(/NOTFOUND/), 'should have not found error')
+    t.ok(results.deliveryErrors[0].response.match(/NOTFOUND/), 'should have not found error')
   }, configs)
 })
 
@@ -134,7 +164,7 @@ test('404 error', function (t) {
   }
   const configs = { badHost: { destinations: [ { url: "http://www.google.com/asdflaskdfja" } ] }}
   webhookTransmogrifier.process(jsonEvent, (results) => {
-    t.equals(results.errors[0].statusCode, 404, 'should have 404')
+    t.equals(results.deliveryErrors[0].statusCode, 404, 'should have 404')
   }, configs)
 })
 

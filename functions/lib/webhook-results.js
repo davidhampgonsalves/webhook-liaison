@@ -4,12 +4,13 @@ const _ = require('underscore')
 
 const logger = require('./logger.js')
 
-const RESULT_TYPES = ['filtered', 'sent', 'errors']
+const RESULT_TYPES = ['errors', 'filtered', 'sent', 'deliveryErrors']
 
 function WebhookResults(configName) {
   this.filtered = []
   this.sent = []
   this.errors = []
+  this.deliveryErrors = []
   this.configName = configName
   this.all = RESULT_TYPES.map((t) => this[t])
 }
@@ -21,7 +22,13 @@ WebhookResults.prototype.merge = function merge(results) {
 }
 
 WebhookResults.prototype.isDeliveryComplete = function isDeliveryComplete(config) {
+  if(this.errors.length > 0)
+    return true
   return this.all.reduce((sum, i) => { return sum + i.length }, 0) === config.destinations.length
+}
+
+WebhookResults.prototype.addErrors = function addErrors(errs, json) {
+  errs.forEach((err) => this.addResult('errors', null, json, { error: err }))
 }
 
 WebhookResults.prototype.addFiltered = function addFiltered(destination, json, filter) {
@@ -29,7 +36,7 @@ WebhookResults.prototype.addFiltered = function addFiltered(destination, json, f
 }
 
 WebhookResults.prototype.addDeliveryError = function addDeliveryError(destination, json, error) {
-  this.addResult('errors', destination, json, error)
+  this.addResult('deliveryErrors', destination, json, error)
 }
 
 WebhookResults.prototype.addDeliveryDetails = function addDeliveryDetails(destination, json, options) {
@@ -57,8 +64,10 @@ WebhookResults.prototype.msgForType = function msgForType(type) {
     if(type === 'filtered') {
       line.push(`${result.filter} prevented request to ${d ? d.url : ' all '} based on `)
     } else {
-      line.push(`${d.method} ${d.url} ${d.contentType}`)
-      if(type === 'errors')
+      if(d)
+        line.push(`${d.method} ${d.url} ${d.contentType}`)
+
+      if(type === 'deliverErrors' || type === 'errors')
         line.push(' failed b/c ', logger.frmt(result.error))
       line.push(' with data ')
     }

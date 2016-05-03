@@ -4,9 +4,9 @@ const test = require('tape')
 
 const Results = require('../webhook-results.js')
 
-const destination = { url: 'http://asdf.com' }
+const destination = { method: 'GET', url: 'http://asdf.com' }
 const json = {}
-const options = { autu: {} }
+const options = { auth: {} }
 const filter = 'asdf'
 const error = { statusCode:404, response: 'asdf' }
 
@@ -25,25 +25,28 @@ test('formatter prints nested objects', function (t) {
 
   debugger
   t.equals(r1.filtered.length, 2, 'should have both filters')
-  t.equals(r1.errors.length, 1, 'should r2\'s error')
+  t.equals(r1.deliveryErrors.length, 1, 'should r2\'s error')
 })
 
 test('formatter prints nested objects', function (t) {
-  t.plan(7)
+  t.plan(9)
 
   const r = new Results('asdf')
 
   r.addFiltered(destination, json, filter)
   r.addDeliveryDetails(destination, json, options)
   r.addDeliveryError(destination, json, error)
+  r.addErrors(['err1', 'err2'])
 
   t.equals(r.filtered.length, 1, 'should have filter')
   t.equals(r.sent.length, 1, 'should have sent')
-  t.equals(r.errors.length, 1, 'should have error')
+  t.equals(r.deliveryErrors.length, 1, 'should have error')
 
   const logged = r.log()
   t.ok(logged.match(/filtered/), 'should have filter section')
   t.ok(logged.match(/sent/), 'should have sent section')
+  t.ok(logged.match(/deliveryErrors/), 'should have errors section')
   t.ok(logged.match(/errors/), 'should have errors section')
   t.ok(logged.match(/asdf/), 'should have config name section')
+  t.ok(logged.match(/err1/), 'should print error msg')
 })
