@@ -7,9 +7,6 @@ require('json5/lib/require')
 const webhookTransmogrifier = require('../webhook-transmogrifier.js')
 const webhookConfig = require('../webhook-config.js')
 
-// TODO: add tests for
-//   keys that don't exist
-
 const input = {
   "locations": [
     {"name": "Seattle", "state": "WA"},
@@ -52,6 +49,18 @@ test('operations are wrong types', function (t) {
   t.equal(errs.length, 2, 'should have error')
   t.ok(errs[0].match(/array/), 'should have type error')
   t.ok(errs[1].match(/array/), 'should have type error')
+})
+
+test('invalid options', function (t) {
+  t.plan(2)
+
+  const configs = { operationsWrongOptions: { destinations: [{ url: "http://url.com" }], extracion: {}, fillers: [] }}
+
+  const config = webhookConfig.configFor('operationsWrongOptions', configs)
+  const errs = webhookConfig.validateConfig(config)
+
+  t.equal(errs.length, 1, 'should have error')
+  t.ok(errs[0].match(/invalid config/), 'should have invalid option error')
 })
 
 test('invalid urls', function (t) {

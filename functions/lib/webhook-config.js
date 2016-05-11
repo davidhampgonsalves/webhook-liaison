@@ -3,6 +3,8 @@
 const _ = require('underscore')
 const jmespath = require('jmespath')
 const validUrl = require('valid-url')
+const colors = require('colors/safe')
+require('json5/lib/require')
 
 const jsonTransmogrifier = require('./json-transmogrifier.js')
 const log = require('./logger.js')
@@ -19,6 +21,21 @@ var validOptions = ['url', 'auth','jsonEmbededFormParameter'].concat(
     Object.keys(DESTINATION_CONFIG_DEFAULTS),
     Object.keys(CONFIG_DEFAULTS),
     Object.keys(jsonTransmogrifier.CONFIG_DEFAULTS))
+
+module.exports.validateConfigs = function validateConfigs() {
+  const configs = require('./webhook-transmogrifier.json5')
+  _.chain(configs).keys().each((name) =>  {
+    var config = exports.configFor(name, configs)
+    var errs = exports.validateConfig(config)
+
+    if(!_.isEmpty(errs)) {
+      console.warn(colors.red(`${name} \u2717`))
+      _.each(errs, (err) => console.warn(colors.yellow(` ${err}`)))
+    } else
+      console.log(colors.green(`${name} \u2713`))
+  })
+  console.log()
+}
 
 module.exports.validateConfig = function validateConfig(config) {
   var errs = []

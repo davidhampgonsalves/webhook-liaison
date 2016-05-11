@@ -4,7 +4,6 @@ const request = require('request')
 const _ = require('underscore')
 const jmespath = require('jmespath')
 const validUrl = require('valid-url')
-require('json5/lib/require')
 
 const jsonTransmogrifier = require('./json-transmogrifier.js')
 const WebhookResults = require('./webhook-results.js')

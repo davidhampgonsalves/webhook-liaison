@@ -1,13 +1,12 @@
 {
   "name": "webhook-transmogrifier",
-  "version": "0.0.1",
-  "description": "A Serverless Project and its Serverless Plugin dependencies.",
-  "author": "me",
+  "version": "1.0.0",
+  "description": "",
+  "author": "David Hamp-Gonsalves",
   "license": "MIT",
   "private": false,
   "scripts": {
-    "start": "sls offline start -P 3000",
-    "test": "cd functions/lib/ && tape __test__/*.js | faucet"
+    "start": "sls offline start -P 3000"
   },
   "repository": {
     "type": "git",
