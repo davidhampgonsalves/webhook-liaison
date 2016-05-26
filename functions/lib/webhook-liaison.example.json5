@@ -1,0 +1,69 @@
+{
+  /*
+   * Send SMS via Twillo and post message to slack when error is encountered in Papertrail
+   */
+  "papertrail": {
+    jsonEmbededFormParameter: "payload", // extract URIEncoded JSON data from "payload"
+    destinations: [
+      {
+        // Send message to Slack with error details + link 
+        url: "<slack webhook url>",
+        extractions: [
+          { text: "join('', ['@channel ', to_string(length(counts)), ' issue(s) found for <', saved_search.html_search_url, '|', saved_search.name, '>'])" },
+        ],
+      },
+      {
+        // Send SMS message with error details
+        url: "https://api.twilio.com/<account details>/Messages.json",
+        contentType: "application/x-www-form-urlencoded", // Transform JSON to form data
+        auth: {
+          user: "<user name for http authentication>",
+          pass: "<password for http authentication>",
+        },
+        extractions: [
+          // Build JSON data that will be passed to twillio
+          { To: "'+12223334444'" },
+          { From: "'+12223334444'" },
+          { Body: "join('', [saved_search.name, ' ', saved_search.html_search_url])" }
+        ]
+      }
+    ]
+  }
+
+  /* 
+   * Trigger IFTTT maker event when TravisCI test status changes.
+   * Configure IFTTT to accept maker webhook(https://ifttt.com/maker) & 
+   * TravisCI(https://docs.travis-ci.com/user/notifications/#Webhook-notification) to send webhook to: 
+   * `http://aws-lambda-url.com/webhookliaison/hook/travis-ci`.
+   */
+  "travis-ci": {
+    jsonEmbededFormParameter: "payload", // extract URIEncoded JSON data from "payload"
+    destinations: [{ url: "https://maker.ifttt.com/trigger/< maker event >/with/key/< ifttt key >" }],
+    filters: [
+      // Only post slack message when test status changes on master branch
+      "branch == `master`", 
+      "status_message == `Fixed` || status_message == `Broken`" 
+    ],
+    extractions: [
+      // Build IFTTT payload containing the status + link to build / branch data. 
+      { status: "status_message", url: "build_url", branch: "branch", repo: "repository.url", msg: "message" }
+    ]
+  },
+
+  /*
+   * Post message to Slack when review label is added to GitHub PR.
+   *
+   *  Configure GitHub(https://developer.github.com/webhooks/) to send webhook to: 
+   *  `http://aws-lambda-url.com/webhookliaison/hook/github-pr`.
+   */
+  "github-pr": {
+    destinations: [{ "url": "https://hooks.slack.com/services/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" }],
+    filters: [
+      "action == `labeled`",
+      "ends_with(label.name, `review`)"
+    ],
+    extractions: [
+      { text: "join('', ['<', pull_request.html_url, '|', pull_request.title '> by ', pull_request.user.login])" }
+    ]
+  },
+}

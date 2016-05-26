@@ -1,5 +1,5 @@
 {
-  "name": "webhook-transmogrifier",
+  "name": "webhook-liaison",
   "custom": {},
   "plugins": [
     "serverless-offline",

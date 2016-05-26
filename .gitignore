@@ -42,4 +42,4 @@ admin.env
 #Ignore _meta folder
 _meta
 
-webhook-transmogrifier.json5
+webhook-liaison.json5
