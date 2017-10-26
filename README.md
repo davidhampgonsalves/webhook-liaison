@@ -3,7 +3,7 @@
 
 Webhook-liason converts request data to JSON, limits subsequent requests via filters and finally transforms the request JSON into the destination(s) format to be sent.
 
-##Features
+## Features
 * Filters & transformations are powered by super powerful [JMESPath](https://jmespath.org) query language.
 * Runs on [AWS Lambda](https://aws.amazon.com/lambda/) using [Serverless Framework](https://github.com/serverless/serverless) so its low maintenance and probably free(< 1 million requests a month).
 * Single inbound Webhook can trigger multiple outbound Webhooks each with its own filters & transformations.
@@ -16,14 +16,14 @@ Webhook-liason converts request data to JSON, limits subsequent requests via fil
 * __[Travis-CI -> IFTTT](functions/lib/webhook-liaison.example.json5#L33)__: Trigger [IFTTT](https://www.ifttt.com) when tests fail / fixed on master.
 * __[Papertrail -> Twillio(SMS)](functions/lib/webhook-liaison.example.json5#L53)__: Send SMS via [Twillio](https://www.twilio.com) when errors are detected on [Papertrail](https://papertrailapp.com).
 
-##Installation
-###Run Locally
+## Installation
+### Run Locally
 * `npm install && npm start`
 * [Configure](#configuration-options)
 
 _test: `curl -X POST -d '{"json": "data"}' http://localhost:3000/hook/<config-name>`_
 
-##Deploy to AWS Lambda
+## Deploy to AWS Lambda
 * Install the [Serverless Framework](https://github.com/serverless/serverless/).
 * Clone this repo.
 * [Configure](#configuration-options)
@@ -64,7 +64,7 @@ transformations: [
 ### Extractions
 Modify the JSON data exactly the same way as [transformations](#transformations) except they start with a blank state (only attributes/selectors you define will be included in request).
 
-##Configuration Options
+## Configuration Options
 Configuration file supports [JSON5](https://github.com/json5/json5) which allows a cleaner syntax + comments. Example configuration can be found in [here](functions/lib/webhook-liaison.example.json5).
 
 * __jsonEmbededFormParameter__: Extract URIEncoded JSON data from `x-www-form-urlencoded` field.
@@ -78,9 +78,9 @@ Configuration file supports [JSON5](https://github.com/json5/json5) which allows
     * __user__: HTTP authentication user name.
     * __pass__: HTTP authentication password.
 
-##Non Webhook Enabled Services
+## Non Webhook Enabled Services
 All HTTP methods are supported + authentication. Form & JSON content types, GET method and query string parameters so if it supports HTTP requests you can probably interact with it.
 
-##Common Issues
+## Common Issues
 `Unable to import module '_serverless_handler'` : Happens if you `sls dash deploy` in directory other than app root.
 
