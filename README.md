@@ -11,7 +11,7 @@ Webhook-liason converts request data to JSON, limits subsequent requests via fil
 * Handles GET requests & query string parameters.
 * HTTP authentication.
 
-##Examples
+## Examples
 * __[Github -> Slack](functions/lib/webhook-liaison.example.json5#L2)__: Post to [Slack](https://www.slack.com) when a pull request is labelled.
 * __[Travis-CI -> IFTTT](functions/lib/webhook-liaison.example.json5#L33)__: Trigger [IFTTT](https://www.ifttt.com) when tests fail / fixed on master.
 * __[Papertrail -> Twillio(SMS)](functions/lib/webhook-liaison.example.json5#L53)__: Send SMS via [Twillio](https://www.twilio.com) when errors are detected on [Papertrail](https://papertrailapp.com).
